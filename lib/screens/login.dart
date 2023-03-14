@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+
+import 'homepage.dart';
 
 
 class Login extends StatefulWidget {
@@ -47,7 +52,7 @@ class _LoginState extends State<Login> {
               constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.8),
               child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
@@ -57,217 +62,197 @@ class _LoginState extends State<Login> {
                           fontWeight: FontWeight.bold,
                           fontSize: 25),
                     ),
-                    Form(
-                      key: formkey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          //error display (if any)
-                          showAlert(),
+                    SizedBox(height: 100),
+                    Center(
+                      child: Form(
+                        key: formkey,
+                        child: Column(
+                          // mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            //error display (if any)
+                            showAlert(),
 
-                          Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 30.0),
-                                child: TextFormField(
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _error = null;
-                                      Email = value;
-                                    });
-                                  },
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    labelText: 'Email',
-                                  ),
-                                ),
-                              )),
-                          const SizedBox(height: 10),
-
-                          Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 30.0),
-                                child: TextFormField(
-                                  obscureText: true,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      Password = value;
-                                    });
-                                  },
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    labelText: 'Password',
-                                  ),
-                                ),
-                              )),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20.0, vertical: 15),
-                            child: InkWell(
-                                onTap: () {
-                                  Navigator.of(context).pushNamed('ForgotPass');
-                                },
-                                child: const Text('Forget your password?')),
-                          ),
-                          // rgba(250,254,1,255)
-                          Center(
-                              child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                                // color: Color.fromARGB(255, 255, 255, 18),
-                                color: Colors.yellow,
-                                borderRadius: BorderRadius.circular(20)),
-                            child: TextButton(
-                              onPressed: () {
-                                setState(() {});
-                                if (validator()) {
-                                  try {
-                                    final user = FirebaseAuth.instance
-                                        .signInWithEmailAndPassword(
-                                            email: Email, password: Password)
-                                        .catchError((e) {
+                            Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(5)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30.0),
+                                  child: TextFormField(
+                                    onChanged: (value) {
                                       setState(() {
-                                        if (e.message ==
-                                            'The password is invalid or the user does not have a password.') {
-                                          _error =
-                                              'The password is invalid, please try again.';
-                                        } else if (e.message ==
-                                            'There is no user record corresponding to this identifier. The user may have been deleted.') {
-                                          _error =
-                                              'User not found. Please check the email address and try again';
-                                        } else if (e.message ==
-                                            'The email address is badly formatted.') {
-                                          _error =
-                                              'The email address is not valid. Please check and try again';
-                                        } else {
-                                          _error = e.message;
-                                        }
-                                        print(_error);
-                                        // _erroris = true;
+                                        _error = null;
+                                        Email = value;
                                       });
-                                    }).then((value) {
-                                      loginpressed = true;
+                                    },
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      labelText: 'Email',
+                                    ),
+                                  ),
+                                )),
+                            const SizedBox(height: 10),
 
-                                      Navigator.pushReplacementNamed(
-                                          context, "Firebasecard");
-                                    });
-                                  } on FirebaseAuthException catch (e) {
+                            Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(5)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30.0),
+                                  child: TextFormField(
+                                    obscureText: true,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        Password = value;
+                                      });
+                                    },
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      labelText: 'Password',
+                                    ),
+                                  ),
+                                )),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20.0, vertical: 15),
+                              child: InkWell(
+                                  onTap: () {
+                                    Navigator.of(context)
+                                        .pushNamed('ForgotPass');
+                                  },
+                                  child: const Text('Forget your password?')),
+                            ),
+                            // rgba(250,254,1,255)
+                            Center(
+                                child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                  // color: Color.fromARGB(255, 255, 255, 18),
+                                  color: Colors.yellow,
+                                  borderRadius: BorderRadius.circular(20)),
+                              child: TextButton(
+                                onPressed: () async {
+                                  var url = Uri.parse(
+                                      'https://thenirmanstore.com/v1/account/login');
+                                  // print(_googleSignIn.currentUser?.photoUrl.toString());
+                                  var responce = await http.post(url, body: {
+                                    'type': '2',
+                                    // 'email': '$Email',
+                                    'email': '$Email',
+                                    'password': '$Password'
+                                  });
+                                  var json = jsonDecode(responce.body);
+                                  // print(responce.statusCode);
+                                  print(json['message']);
+                                  if (json['status'] == 1) {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => HomePage(),
+                                        ));
+                                  } else {
                                     setState(() {
-                                      if (e.message ==
-                                          'The email address is badly formatted.') {
-                                        {
-                                          setState(() {
-                                            _error =
-                                                'The email address is invalid, please try again.';
-                                          });
-                                        }
-                                      } else {
-                                        _error = e.message;
-                                      }
+                                      _error = json['message'];
                                     });
-                                    print(e);
                                   }
-                                }
-                              },
-                              child: const Text(
-                                'LOGIN',
-                                style: TextStyle(
-                                  color: Colors.black,
+                                },
+                                child: const Text(
+                                  'LOGIN',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ),
+                            )),
+                            SizedBox(height: 10),
+                            Align(
+                              alignment: Alignment.center,
+                              child: Material(
+                                borderRadius: BorderRadius.circular(30),
+                                elevation: 2,
+                                child: Container(
+                                    height: 43,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.6,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      // rgba(211, 38, 38, 0.25);
+                                      color: Colors.blue[800],
+                                    ),
+                                    child: TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pushNamed('MobileLogin');
+                                        },
+                                        child: Text(
+                                          'Use Mobile Number',
+                                          style: TextStyle(color: Colors.white),
+                                        ))),
+                              ),
                             ),
-                          )),
-                          SizedBox(height: 10),
-                          Align(
-                            alignment: Alignment.center,
-                            child: Material(
-                              borderRadius: BorderRadius.circular(30),
-                              elevation: 2,
-                              child: Container(
-                                  height: 43,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.6,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    // rgba(211, 38, 38, 0.25);
-                                    color: Colors.blue[800],
-                                  ),
-                                  child: TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context)
-                                            .pushNamed('MobileLogin');
-                                      },
-                                      child: Text(
-                                        'Use Mobile Number',
-                                        style: TextStyle(color: Colors.white),
-                                      ))),
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          Center(
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pushNamed(context, 'SignUp');
-                              },
-                              child: Text('Create a new account'),
-                            ),
-                          )
-                        ],
+                            SizedBox(height: 20),
+                            Center(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, 'SignUp');
+                                },
+                                child: Text('Create a new account'),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: Column(
-                        children: [
-                          Center(child: Text('Or login with social account')),
-                          SizedBox(height: 10),
-                          Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextButton(
-                                  onPressed: () async {
-                                    var _user;
-                                    final googleUser =
-                                        await GoogleSignIn().signIn();
-                                    if (googleUser == null) return;
-                                    _user = googleUser;
-                                    final googleAuth =
-                                        await googleUser.authentication;
 
-                                    final credential =
-                                        GoogleAuthProvider.credential(
-                                            accessToken: googleAuth.accessToken,
-                                            idToken: googleAuth.idToken);
-                                    await FirebaseAuth.instance
-                                        .signInWithCredential(credential);
-                                    setState(() {});
-                                  },
-                                  child: const Image(
-                                      height: 27,
-                                      image: AssetImage(
-                                          'assets/images/google.png')),
-                                ),
-                                TextButton(
-                                  onPressed: () {},
-                                  child: const Image(
-                                      height: 27,
-                                      image:
-                                          AssetImage('assets/images/fb.png')),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    )
+                    // Padding(
+                    //   padding: const EdgeInsets.only(bottom: 20.0),
+                    //   child: Column(
+                    //     children: [
+                    //       Center(child: Text('Or login with social account')),
+                    //       SizedBox(height: 10),
+                    //       Center(
+                    //         child: Row(
+                    //           mainAxisAlignment: MainAxisAlignment.center,
+                    //           children: [
+                    //             TextButton(
+                    //               onPressed: () async {
+                    //                 var _user;
+                    //                 final googleUser =
+                    //                     await GoogleSignIn().signIn();
+                    //                 if (googleUser == null) return;
+                    //                 _user = googleUser;
+                    //                 final googleAuth =
+                    //                     await googleUser.authentication;
+
+                    //                 final credential =
+                    //                     GoogleAuthProvider.credential(
+                    //                         accessToken: googleAuth.accessToken,
+                    //                         idToken: googleAuth.idToken);
+                    //                 await FirebaseAuth.instance
+                    //                     .signInWithCredential(credential);
+                    //                 setState(() {});
+                    //               },
+                    //               child: const Image(
+                    //                   height: 27,
+                    //                   image: AssetImage(
+                    //                       'assets/images/google.png')),
+                    //             ),
+                    //             TextButton(
+                    //               onPressed: () {},
+                    //               child: const Image(
+                    //                   height: 27,
+                    //                   image:
+                    //                       AssetImage('assets/images/fb.png')),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       )
+                    //     ],
+                    //   ),
+                    // )
                   ]),
             ),
           )),

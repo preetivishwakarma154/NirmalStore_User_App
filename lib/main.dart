@@ -2,13 +2,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:nirman_store/provider/count_provider.dart';
 import 'package:nirman_store/screens/AddAddress.dart';
-import 'package:nirman_store/screens/All_Address.dart';
 import 'package:nirman_store/screens/OrderDetails.dart';
 import 'package:nirman_store/screens/Ordered.dart';
 import 'package:nirman_store/screens/ReferandEarn.dart';
 import 'package:nirman_store/screens/Settings.dart';
-import 'package:nirman_store/screens/SplashScreen.dart';
-import 'package:nirman_store/screens/checkout.dart';
+import 'package:nirman_store/screens/cart.dart';
 import 'package:nirman_store/screens/forgotpass.dart';
 import 'package:nirman_store/screens/homepage.dart';
 import 'package:nirman_store/screens/login.dart';
@@ -41,7 +39,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: HomePage(),
+        home: const HomePage(),
         routes: {
           'SignUp': (context) => SignUp(),
           'Login': (context) => const Login(),
@@ -49,9 +47,7 @@ class MyApp extends StatelessWidget {
           'ForgotPass': (context) => const ForgotPass(),
           'HomePage': (context) => const HomePage(),
           'ProductDetails': (context) => ProductDetails(),
-         //'CheckOut': (context) => CheckOut(0),
           'AddAddress': (context) => AddAddress(),
-
           'Payment': (context) => Payment(),
           'Ordered': (context) => Ordered(),
           'MyOrder': (context) => MyOrder(),
@@ -59,7 +55,8 @@ class MyApp extends StatelessWidget {
           'RefernEarn': (context) => RefernEarn(),
           'Settings': (context) => Settings(),
           'ReferEarnHistory': (context) => ReferEarnHistory(),
-          'Subscription': (context) => Subscription()
+          'Subscription': (context) => Subscription(),
+          'Cart': (context) => Cart()
         },
       ),
     );

@@ -2,7 +2,6 @@
 // display for 2000 milli second while starting the application.
 
 import 'package:flutter/material.dart';
-import 'package:nirman_store/screens/homepage.dart';
 import 'package:nirman_store/screens/signup.dart';
 
 
@@ -24,7 +23,11 @@ class _SplashScreenState extends State<SplashScreen> {
   //with a delay of 2000 millisec, the title and logo will appear on the screen.
   _navigatetohome() async {
     await Future.delayed(Duration(milliseconds: 2000), () {});
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>SignUp()));
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SignUp(),
+        ));
   }
 
   @override

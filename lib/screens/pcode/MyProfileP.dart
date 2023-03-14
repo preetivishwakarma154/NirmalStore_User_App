@@ -1,13 +1,60 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-class MyProfile extends StatefulWidget {
-  const MyProfile({super.key});
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import 'ProfileDetailsP.dart';
+
+class MyProfileP extends StatefulWidget {
+  const MyProfileP({super.key});
 
   @override
-  State<MyProfile> createState() => _MyProfileState();
+  State<MyProfileP> createState() => _MyProfilePState();
 }
 
-class _MyProfileState extends State<MyProfile> {
+late String getData;
+Map getList = Map();
+var url = 'https://thenirmanstore.com/';
+
+class _MyProfilePState extends State<MyProfileP> {
+  bool apicalled = false;
+
+  Future<void> getProfile() async {
+    try {
+      var headers = {
+        'x-access-token':
+            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzg0LCJpYXQiOjE2Nzg3OTgwMDB9.D3pd-BAonJ4v09hHIPM4agVw5bPYu5gJzxgVPj9p48M',
+        'Cookie': 'ci_session=dc51f8d959bc6201cd8ebc94d6b71a9e04d3cb65'
+      };
+      var request = http.MultipartRequest('GET',
+          Uri.parse('https://thenirmanstore.com/v1/account/get_profile'));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+      getData = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        setState(() {
+          getList = jsonDecode(getData);
+        });
+        apicalled = true;
+        print(getList);
+        print(url + getList['data']['profile_picture']);
+      } else {
+        print(response.reasonPhrase);
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    getProfile();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -22,43 +69,66 @@ class _MyProfileState extends State<MyProfile> {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
               ),
               SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 33,
-                    backgroundColor: Colors.black,
-                    child: Icon(
-                      Icons.person,
-                      size: 40,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      10,
-                      10,
-                      0,
-                      0,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'User Name',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          'example@gmail.com',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
+              FutureBuilder(
+                builder: (context, snapshot) {
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ProfileScreenP()));
+                    },
+                    child: getList.isEmpty
+                        ? Center(child: CircularProgressIndicator())
+                        : Container(
+                            margin: EdgeInsets.all(10),
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.grey.shade100,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  radius: 33,
+                                  backgroundColor: Colors.white,
+                                  child: CircularProgressIndicator.adaptive(),
+                                  foregroundImage: NetworkImage(
+                                      'https://thenirmanstore.com/' +
+                                          getList['data']['profile_picture']),
+                                ),
+                                SizedBox(width: 10),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    10,
+                                    0,
+                                    0,
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        getList['data']['username'],
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Text(
+                                        getList['data']['email'],
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                  );
+                },
               ),
               SizedBox(height: 40),
               InkWell(

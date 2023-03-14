@@ -1,10 +1,13 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'homepage.dart';
 
 
 class MobileLoginWidget extends StatefulWidget {
@@ -131,86 +134,24 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
     );
   }
 
-  Future<bool> isPhoneNumberStored(String phoneNumber) async {
-    bool isStored = false;
-    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
-        .instance
-        .collection('Registered User')
-        .where('Phone', isEqualTo: phoneNumber)
-        .limit(1)
-        .get();
-
-    if (querySnapshot.size > 0) {
-      isStored = true;
-    }
-    if (isStored == true) {
-      setState(() {
-        num_already_stored = true;
+  Future<void> verifyPhoneNumber() async {
+    try {
+      var url = Uri.parse('https://thenirmanstore.com/v1/account/login');
+      // print(_googleSignIn.currentUser?.photoUrl.toString());
+      var responce = await http.post(url, body: {
+        'type': '1',
+        'phone': '$phoneNumber',
       });
-      verifyPhoneNumber(context);
-    } else {
-      setState(() {
-        num_already_stored = false;
-      });
+      var json = jsonDecode(responce.body);
+      print(json);
+      if (json['status'] == 1) {
+        setState(() {
+          OTPrequested = true;
+        });
+      }
+    } catch (e) {
+      print(e);
     }
-    print('ISSTORED ERROR : $isStored');
-    return isStored;
-  }
-
-  Future<void> verifyPhoneNumber(BuildContext context) async {
-//check if registered
-
-//check if registered
-
-    setState(() {
-      recaptchaverifying = true;
-      OTPrequested = true;
-    });
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      timeout: const Duration(
-        seconds: 60,
-      ),
-      verificationCompleted: (PhoneAuthCredential authCredential) async {
-        // await FirebaseAuth.instance.signInWithPhoneNumber(phoneNumber);
-
-        setState(() {
-          authStatus = "Your account is successfully verified";
-          setState(() {
-            recaptchaverifying = false;
-          });
-        });
-        print(authStatus);
-      },
-      verificationFailed: (FirebaseAuthException authException) {
-        setState(() {
-          authStatus = "Authentication failed";
-          verifyingfailed = true;
-          OTPrequested = false;
-          recaptchaverifying = false;
-        });
-        print(authStatus);
-      },
-      codeSent: (verificationId, forceResendingToken) {
-        _verId = verificationId;
-        setState(() {
-          authStatus = "OTP has been successfully send";
-        });
-        setState(() {
-          recaptchaverifying = false;
-          cooldown = true;
-          startTimer();
-        });
-        print(authStatus);
-      },
-      codeAutoRetrievalTimeout: (String verId) {
-        _verId = verId;
-        setState(() {
-          authStatus = "TIMEOUT";
-        });
-        print(authStatus);
-      },
-    );
   }
 
   verifyotp() async {
@@ -221,31 +162,23 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
         otp5Controller.text.isNotEmpty ||
         otp6Controller.text.isNotEmpty) {
       try {
-        PhoneAuthCredential credential = PhoneAuthProvider.credential(
-            verificationId: _verId, smsCode: otp.toString());
-        await auth.signInWithCredential(credential).then((value) {
-          {
-            setState(() {
-              numberverified = true;
-            });
-
-            print('number verified');
-            Navigator.pushReplacementNamed(context, "HomePage");
-          }
+        var url = Uri.parse('https://thenirmanstore.com/v1/account/otp_verify');
+        // print(_googleSignIn.currentUser?.photoUrl.toString());
+        var responce = await http.post(url, body: {
+          'otp': '$otp',
+          'phone': '$phoneNumber',
         });
-      } on FirebaseAuthException catch (e) {
-        print('error : ${e.message}');
-        if (e.message ==
-            "The sms verification code used to create the phone auth credential is invalid. Please resend the verification code sms and be sure use the verification code provided by the user.") {
-          setState(() {
-            otperror =
-                "The OTP you have entered is invalid, please check again or resend the OTP";
-          });
-        } else {
-          setState(() {
-            otperror = e.message;
-          });
+        var json = jsonDecode(responce.body);
+        print(json);
+        if (json['status'] == 1) {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(),
+              ));
         }
+      } catch (e) {
+        print(e);
       }
     } else {
       setState(() {
@@ -258,7 +191,6 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
   Widget build(BuildContext context) {
     Duration duration = Duration(seconds: maxseconds);
     String formattedTime = formatDuration(duration);
-    var edit_square;
     return recaptchaverifying == false
         ? Form(
             key: _formkey,
@@ -300,7 +232,7 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.edit_sharp,
+                              Icons.edit_square,
                               size: 19,
                             ),
                             SizedBox(width: 5),
@@ -586,7 +518,7 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
                               TextButton(
                                 onPressed: () {
                                   if (cooldown == false) {
-                                    verifyPhoneNumber(context);
+                                    verifyPhoneNumber();
                                   }
                                 },
                                 child: Text("Send again",
@@ -795,15 +727,7 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
                       borderRadius: BorderRadius.circular(10)),
                   child: TextButton(
                     onPressed: () async {
-                      if (validator()) {
-                        if (numbererror == null) {
-                          OTPrequested == false
-                              // ? verifyPhoneNumber(context)
-                              ? isPhoneNumberStored(phoneNumber)
-                              : verifyotp();
-                        }
-                      }
-                      setState(() {});
+                      OTPrequested == false ? verifyPhoneNumber() : verifyotp();
                     },
                     child: Text(
                       OTPrequested == false ? 'Get OTP' : 'Verify OTP',

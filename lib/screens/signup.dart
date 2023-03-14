@@ -103,21 +103,19 @@ class _SignUpState extends State<SignUp> {
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return "$twoDigitMinutes:$twoDigitSeconds";
   }
-  Future<void> SendOtp( String number,
-  String email,
-  String password,
-  String username)async{
-    try{
-      var url = Uri.parse(
-          'https://thenirmanstore.com/v1/account/social_signup');
+
+  Future<void> SendOtp({number, email, password, username}) async {
+    try {
+      var url =
+          Uri.parse('https://thenirmanstore.com/v1/account/social_signup');
       // print(_googleSignIn.currentUser?.photoUrl.toString());
       var responce = await http.post(url, body: {
         'device_token': 'TFTFFGHHHHHHHHHHHHHHHHHU',
-              'type': '1',
-              'phone': number,
-              'email': email,
-              'password': password,
-              'username': username
+        'type': '2',
+        'phone': number,
+        'email': email,
+        'password': password,
+        'username': username
       });
       var json = jsonDecode(responce.body);
       // print(responce.statusCode);
@@ -133,27 +131,21 @@ class _SignUpState extends State<SignUp> {
           _error = json['message'];
         });
       }
-    }catch(e){
+    } catch (e) {
       print(e.toString());
     }
-
-}
-
-
+  }
 
 // MOBILE NUMBER VERIFY LOGICS
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 246, 246, 246),
-        elevation: 0,
-
-        leading: SizedBox(),
-      ),
+        appBar: AppBar(
+          backgroundColor: Color.fromARGB(255, 246, 246, 246),
+          elevation: 0,
+          leading: SizedBox(),
+        ),
         backgroundColor: Color.fromARGB(255, 246, 246, 246),
         body: Padding(
           padding: const EdgeInsets.all(20),
@@ -317,24 +309,24 @@ class _SignUpState extends State<SignUp> {
                             )),
                         SizedBox(height: 10),
                         Container(
-                          height: 40,
                           width: MediaQuery.of(context).size.width,
                           decoration: BoxDecoration(
                               // color: Color.fromARGB(255, 255, 255, 18),
-
+                              color: Colors.yellow,
                               borderRadius: BorderRadius.circular(20)),
+                          height: 40,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blue.shade800,
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(10)))),
-                            onPressed: () {
-                              SendOtp(
-                                  numberController.text.toString(),
-                                  emailController.text.toString(),
-                                  passwordController.text.toString(),
-                                  nameController.text.toString());
+                            onPressed: () async {
+                              await SendOtp(
+                                  number: numberController.text.toString(),
+                                  email: emailController.text.toString(),
+                                  password: passwordController.text.toString(),
+                                  username: nameController.text.toString());
                             },
                             child: Text(
                               'SIGN UP',

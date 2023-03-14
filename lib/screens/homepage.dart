@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nirman_store/screens/wishlist.dart';
+import 'package:nirman_store/screens/pcode/MyProfileP.dart';
+import 'package:nirman_store/screens/wishlistP.dart';
 
 import '../model/home.dart';
 import '../model/search.dart';
-import 'MyProfile.dart';
 import 'cart.dart';
-
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -45,8 +44,8 @@ class _HomePageState extends State<HomePage> {
     Home(),
     Search(),
     Cart(),
-    WishList(),
-    MyProfile()
+    WishListP(),
+    MyProfileP()
   ];
   @override
   Widget build(BuildContext context) {

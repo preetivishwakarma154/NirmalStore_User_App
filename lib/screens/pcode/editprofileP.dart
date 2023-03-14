@@ -1,23 +1,27 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:nirman_store/screens/ProfileDetails.dart';
 
-class EditProfile extends StatefulWidget {
-  EditProfile(
-      {Key? key, required this.image, required this.name, required this.number})
+import 'ProfileDetailsP.dart';
+
+
+class EditProfileP extends StatefulWidget {
+  EditProfileP(
+      {Key? key,
+      required this.defaultimage,
+      required this.name,
+      required this.number})
       : super(key: key);
   var name, number;
-  NetworkImage image;
+  var defaultimage;
 
   @override
-  State<EditProfile> createState() => _EditProfileState();
+  State<EditProfileP> createState() => _EditProfilePState();
 }
 
-class _EditProfileState extends State<EditProfile> {
+class _EditProfilePState extends State<EditProfileP> {
   var _image;
   Map datalist = Map();
 
@@ -31,9 +35,10 @@ class _EditProfileState extends State<EditProfile> {
       print('++++++++++++++++++++++' + image);
       var request = http.MultipartRequest('POST',
           Uri.parse('http://thenirmanstore.com/v1/account/edit_profile'));
-      request.fields.addAll({'username': username, 'phone': phone});
-      request.files
-          .add(await http.MultipartFile.fromPath('profile_picture', image));
+      request.fields
+          .addAll({'username': username, 'phone': phone, 'image': image});
+      // request.files
+      //     .add(await http.MultipartFile.fromPath('profile_picture', image));
       request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();
@@ -44,14 +49,9 @@ class _EditProfileState extends State<EditProfile> {
           datalist = jsonDecode(data);
         });
         if (datalist['status'] == 1) {
-
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ProfileScreen(
-
-              )));
-        }else{
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => ProfileScreenP()));
+        } else {
           CircularProgressIndicator();
         }
         print(datalist);
@@ -146,8 +146,10 @@ class _EditProfileState extends State<EditProfile> {
                   },
                   child: CircleAvatar(
                     radius: 50,
-                    backgroundImage: _image == null
-                        ? widget.image as ImageProvider
+                    backgroundColor: Colors.white,
+                    child: CircularProgressIndicator.adaptive(),
+                    foregroundImage: _image == null
+                        ? NetworkImage(widget.defaultimage)
                         : FileImage(_image) as ImageProvider
                     //_image==null? FileImage(_image!):AssetImage('assets/images/fb.png')as ImageProvider
                     ,
@@ -196,9 +198,11 @@ class _EditProfileState extends State<EditProfile> {
                       child: TextButton(
                           onPressed: () {
                             var image;
-                           _image==null?image=widget.image:image=_image;
+                            _image == null
+                                ? image = widget.defaultimage
+                                : image = _image.path;
                             Edit_Profile(nameController.text.toString(),
-                                numberController.text.toString(), image.path);
+                                numberController.text.toString(), image);
                           },
                           child: Text(
                             'SAVE',

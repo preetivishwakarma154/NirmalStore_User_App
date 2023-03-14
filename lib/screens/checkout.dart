@@ -1,20 +1,28 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 import 'package:http/http.dart' as http;
+import 'package:nirman_store/screens/pcode/All_AddressP.dart';
+
 import 'AddAddress.dart';
-import 'All_Address.dart';
 import 'cart.dart';
 
 class CheckOut extends StatefulWidget {
-
-
+  var paymentmethod;
+  var finalprice;
+  var deliverycharges;
+  CheckOut(
+      {required this.paymentmethod,
+      required this.deliverycharges,
+      required this.finalprice});
 
   @override
   State<CheckOut> createState() => _CheckOutState();
 }
 
 class _CheckOutState extends State<CheckOut> {
+  var delivery_charges = 50;
   var addressData;
   Map addressList = Map();
 
@@ -23,10 +31,12 @@ class _CheckOutState extends State<CheckOut> {
   Future AllAddress() async {
     try {
       var headers = {
-        'x-access-token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzk3LCJpYXQiOjE2Nzc3NzI4NDB9.MsjQ4H2x6wPyqNEzTMqBP-x4cgwNwt_1E4SZ5ZxIYZE',
+        'x-access-token':
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzk3LCJpYXQiOjE2Nzc3NzI4NDB9.MsjQ4H2x6wPyqNEzTMqBP-x4cgwNwt_1E4SZ5ZxIYZE',
         'Cookie': 'ci_session=bf1a76db3f3961bcb5e2b119abdd1ac1c3ca4825'
       };
-      var request = http.MultipartRequest('POST', Uri.parse('http://thenirmanstore.com/v1/account/address_list'));
+      var request = http.MultipartRequest('POST',
+          Uri.parse('http://thenirmanstore.com/v1/account/address_list'));
 
       request.headers.addAll(headers);
 
@@ -40,32 +50,54 @@ class _CheckOutState extends State<CheckOut> {
         });
 
         return addressList;
-      }
-      else {
+      } else {
         print(response.reasonPhrase);
       }
-
     } catch (e) {
       print(e.toString());
     }
   }
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
+  void getcheckoutdetails() {}
+
+  void createorderapi() async {
+    print('apicalled');
+    var url = Uri.parse('http://thenirmanstore.com/v1/order/create_order');
+    // print(_googleSignIn.currentUser?.photoUrl.toString());
+    var responce = await http.post(url, body: {
+      'payment_method': '${widget.paymentmethod}',
+      'final_price': '${widget.finalprice}',
+      'delivery_charges': '${widget.deliverycharges}'
+    }, headers: {
+      'x-access-token':
+          'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NDIyLCJpYXQiOjE2Nzc5MzMyMzR9.jolwUrSbFTJhhbCXK80I4Qp-OlX47aUHPqkwPj56AoY'
+    });
+
+    if (responce.statusCode == 200) {
+      setState(() {
+        // apicalled = true;
+        // cartlist = jsonDecode(responce.body);
+      });
+    }
+
+    var json = jsonDecode(responce.body);
+    // print(responce.statusCode);
+    print('json msg printed?');
+    print(json['data']);
+    print(json.length);
+    try {} catch (e) {}
+    // data = json['data'];
+    // datalength = json['data'].length;
+    // print(prodName);
+    // return prodName;
   }
 
   @override
   void initState() {
-    AllAddress();
-
+    createorderapi();
     super.initState();
   }
 
-  var delivery_charges = 50;
-  Color addAddressColor = Colors.white70;
-  Color activeColor = Colors.blue;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,85 +141,82 @@ class _CheckOutState extends State<CheckOut> {
                     if (addressList['status'] == 0) ...[
                       apicalled == true
                           ? ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5)))),
-                              onPressed: () {
-                                addAddressColor = activeColor;
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(5)))),
+                          onPressed: () {
 
-                                splashColor:
-                                Colors.blue.withAlpha(30);
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AddAddress()));
-                              },
-                              child: Padding(
-                                padding: EdgeInsets.all(15),
-                                child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.add,
+
+                            splashColor:
+                            Colors.blue.withAlpha(30);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AddAddress()));
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(15),
+                            child: Row(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    color: Colors.blue.shade800,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    'Add Address',
+                                    style: TextStyle(
+                                        fontSize: 18,
                                         color: Colors.blue.shade800,
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Text(
-                                        'Add Address',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.blue.shade800,
-                                            fontWeight: FontWeight.w400),
-                                      ),
-                                    ]),
-                              )
-                              // child: Padding(
-                              //   padding: const EdgeInsets.all(15),
-                              //   child: Column(
-                              //       crossAxisAlignment: CrossAxisAlignment.start,
-                              //       children: [
-                              //         Row(
-                              //           mainAxisAlignment:
-                              //               MainAxisAlignment.spaceBetween,
-                              //           children: [
-                              //             Text(
-                              //               'Jane Doe',
-                              //               style: TextStyle(
-                              //                   color: Colors.black87,
-                              //                   fontSize: 15,
-                              //                   fontWeight: FontWeight.bold),
-                              //             ),
-                              //             InkWell(
-                              //               onTap: () {
-                              //                 Navigator.push(context, MaterialPageRoute(builder: (context) =>AddAddress() ));
-                              //               },
-                              //               child: Text(
-                              //                 'Change',
-                              //                 style: TextStyle(
-                              //                     color: Colors.red[600],
-                              //                     fontSize: 16),
-                              //               ),
-                              //             ),
-                              //           ],
-                              //         ),
-                              //         SizedBox(height: 10),
-                              //         Text('3 Newbridge Court'),
-                              //         SizedBox(height: 5),
-                              //         Text('Chino Hills, CA 91709, United States'),
-                              //       ]),
-                              // ),
-                              )
-                          : SizedBox(
-                        height: 70,
-                          width: 70,
-                          child: CircularProgressIndicator()),
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ]),
+                          )
+                        // child: Padding(
+                        //   padding: const EdgeInsets.all(15),
+                        //   child: Column(
+                        //       crossAxisAlignment: CrossAxisAlignment.start,
+                        //       children: [
+                        //         Row(
+                        //           mainAxisAlignment:
+                        //               MainAxisAlignment.spaceBetween,
+                        //           children: [
+                        //             Text(
+                        //               'Jane Doe',
+                        //               style: TextStyle(
+                        //                   color: Colors.black87,
+                        //                   fontSize: 15,
+                        //                   fontWeight: FontWeight.bold),
+                        //             ),
+                        //             InkWell(
+                        //               onTap: () {
+                        //                 Navigator.push(context, MaterialPageRoute(builder: (context) =>AddAddress() ));
+                        //               },
+                        //               child: Text(
+                        //                 'Change',
+                        //                 style: TextStyle(
+                        //                     color: Colors.red[600],
+                        //                     fontSize: 16),
+                        //               ),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //         SizedBox(height: 10),
+                        //         Text('3 Newbridge Court'),
+                        //         SizedBox(height: 5),
+                        //         Text('Chino Hills, CA 91709, United States'),
+                        //       ]),
+                        // ),
+                      )
+                          : Center(child: CircularProgressIndicator()),
                     ] else ...[
                       Center(
                         child: Container(
@@ -204,79 +233,137 @@ class _CheckOutState extends State<CheckOut> {
                               future: AllAddress(),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
-
                                   return Container(
                                     height: 70,
-
                                     child: ListView.builder(
                                       itemCount: addressList['data'].length,
                                       itemBuilder: (context, index) {
-
-                                      return addressList['data'][index]['default_status']=='1'?Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                        children:[
-                                          Row(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-
-                                                    addressList['data'][index]
-                                                    ['first_name'],
-                                                style: TextStyle(fontSize: 16,
-                                                fontWeight: FontWeight.bold),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.topRight,
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                All_Address()));
-                                                  },
-                                                  child: Text(
-                                                    'Change',
-                                                    style: TextStyle(
-                                                        color: Colors.red[600],
-                                                        fontSize: 16),
-                                                  ),
+                                        return addressList['data'][index]
+                                        ['default_status'] ==
+                                            '1'
+                                            ? Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment
+                                                  .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  addressList['data']
+                                                  [index]
+                                                  ['first_name'],
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                      FontWeight
+                                                          .bold),
                                                 ),
-                                              )
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height: 8,
-                                          ),
-                                          Text(
-
-                                                snapshot.data['data'][index]
-                                                ['address'] +
-                                                " " +
-                                                snapshot.data['data'][index]
-                                                ['city'] +
-                                                ", " +
-                                                snapshot.data['data'][index]
-                                                ['state'],
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                        ],
-                                      ):Text('');
-                                    },),
+                                                Align(
+                                                  alignment:
+                                                  Alignment.topRight,
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder:
+                                                                  (context) =>
+                                                                  All_AddressP()));
+                                                    },
+                                                    child: Text(
+                                                      'Change',
+                                                      style: TextStyle(
+                                                          color: Colors
+                                                              .red[600],
+                                                          fontSize: 16),
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              height: 8,
+                                            ),
+                                            Text(
+                                              snapshot.data['data'][index]
+                                              ['address'] +
+                                                  " " +
+                                                  snapshot.data['data']
+                                                  [index]['city'] +
+                                                  ", " +
+                                                  snapshot.data['data']
+                                                  [index]['state'],
+                                              style:
+                                              TextStyle(fontSize: 16),
+                                            ),
+                                          ],
+                                        )
+                                            : Text('');
+                                      },
+                                    ),
                                   );
                                 }
-                                return CircularProgressIndicator.adaptive();
+                                return CircularProgressIndicator(
+
+                                );
                               },
                             ),
                           ),
                         ),
                       )
-                    ],
-
-                    SizedBox(
+                    ]
+                    // Material(
+                    //   elevation: 2,
+                    //   shadowColor: Colors.black87,
+                    //   borderRadius: BorderRadius.circular(10),
+                    //   child: Container(
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.white,
+                    //       borderRadius: BorderRadius.circular(10),
+                    //     ),
+                    //     child: Padding(
+                    //       padding: const EdgeInsets.all(15),
+                    //       child: Column(
+                    //           crossAxisAlignment: CrossAxisAlignment.start,
+                    //           children: [
+                    //             Row(
+                    //               mainAxisAlignment:
+                    //                   MainAxisAlignment.spaceBetween,
+                    //               children: [
+                    //                 Text(
+                    //                   'Jane Doe',
+                    //                   style: TextStyle(
+                    //                       color: Colors.black87,
+                    //                       fontSize: 15,
+                    //                       fontWeight: FontWeight.bold),
+                    //                 ),
+                    //                 InkWell(
+                    //                   onTap: () {
+                    //                     Navigator.pushNamed(
+                    //                         context, 'AddAddress');
+                    //                   },
+                    //                   child: Text(
+                    //                     'Change',
+                    //                     style: TextStyle(
+                    //                         color: Colors.red[600],
+                    //                         fontSize: 16),
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //             SizedBox(height: 10),
+                    //             Text('3 Newbridge Court'),
+                    //             SizedBox(height: 5),
+                    //             Text('Chino Hills, CA 91709, United States'),
+                    //           ]),
+                    //     ),
+                    //   ),
+                    // ),
+                    ,SizedBox(
                       height: 30,
                     ),
                     Row(
@@ -420,6 +507,7 @@ class _CheckOutState extends State<CheckOut> {
                             ),
                             child: TextButton(
                                 onPressed: () {
+                                  createorderapi();
                                   Navigator.of(context).pushNamed('Ordered');
                                 },
                                 child: Text(

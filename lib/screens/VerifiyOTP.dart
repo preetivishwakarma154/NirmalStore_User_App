@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:nirman_store/screens/homepage.dart';
+
+import 'homepage.dart';
+
 
 class VerifyOTP extends StatefulWidget {
   const VerifyOTP({Key? key, required this.number}) : super(key: key);
@@ -13,8 +15,8 @@ class VerifyOTP extends StatefulWidget {
   @override
   State<VerifyOTP> createState() => _VerifyOTPState();
 }
-var otperror;
 
+var otperror;
 
 // Future<void> VerifyOtp(
 //
@@ -77,16 +79,15 @@ class _VerifyOTPState extends State<VerifyOTP> {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> VerifyOtp(   String otp,
-        String number,)async{
-      try{
-        var url = Uri.parse(
-            'https://thenirmanstore.com/v1/account/otp_verify');
+    Future<void> VerifyOtp(
+      String otp,
+      String number,
+    ) async {
+      try {
+        var url = Uri.parse('https://thenirmanstore.com/v1/account/otp_verify');
         // print(_googleSignIn.currentUser?.photoUrl.toString());
-        var responce = await http.post(url, body: {
-          'otp': otp,
-          'phone': number
-        });
+        var responce =
+            await http.post(url, body: {'otp': otp, 'phone': number});
         var json = jsonDecode(responce.body);
         // print(responce.statusCode);
         print(json['message']);
@@ -101,11 +102,11 @@ class _VerifyOTPState extends State<VerifyOTP> {
             otperror = json['message'];
           });
         }
-      }catch(e){
+      } catch (e) {
         print(e.toString());
       }
-
     }
+
     bool cooldown = false;
     var maxseconds = 120;
 
@@ -132,6 +133,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
       String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
       return "$twoDigitMinutes:$twoDigitSeconds";
     }
+
     Widget showOTPAlert() {
       return Column(
         children: [
@@ -143,7 +145,8 @@ class _VerifyOTPState extends State<VerifyOTP> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.error_outline_outlined, color: Colors.red),
+                    child:
+                        Icon(Icons.error_outline_outlined, color: Colors.red),
                   ),
                   Container(
                       width: MediaQuery.of(context).size.width - 100,
@@ -162,7 +165,8 @@ class _VerifyOTPState extends State<VerifyOTP> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.error_outline_outlined, color: Colors.red),
+                    child:
+                        Icon(Icons.error_outline_outlined, color: Colors.red),
                   ),
                   Container(
                       width: MediaQuery.of(context).size.width - 100,
@@ -216,12 +220,10 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       setState(() {
                                         otpfieldempty = false;
                                         otperror = null;
-                                        otp =
-                                        '${otp1Controller.text}';
+                                        otp = '${otp1Controller.text}';
                                         if (value.length >= 1) {
                                           otp1FocusNode.unfocus();
-                                          FocusScope.of(context)
-                                              .nextFocus();
+                                          FocusScope.of(context).nextFocus();
                                         }
                                         if (value.length < 1) {
                                           otp1FocusNode.unfocus();
@@ -236,10 +238,8 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                     inputFormatters: [
                                       LengthLimitingTextInputFormatter(10),
                                     ],
-
                                     decoration: const InputDecoration(
-                                        labelStyle:
-                                        TextStyle(fontSize: 15)),
+                                        labelStyle: TextStyle(fontSize: 15)),
                                   ),
                                 ),
                               ],
@@ -266,11 +266,10 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                         otpfieldempty = false;
                                         otperror = null;
                                         otp =
-                                        '${otp1Controller.text}${otp2Controller.text}';
+                                            '${otp1Controller.text}${otp2Controller.text}';
                                         if (value.length >= 1) {
                                           otp2FocusNode.unfocus();
-                                          FocusScope.of(context)
-                                              .nextFocus();
+                                          FocusScope.of(context).nextFocus();
                                         }
                                         if (value.length < 1) {
                                           otp2FocusNode.unfocus();
@@ -280,8 +279,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       });
                                     },
                                     decoration: const InputDecoration(
-                                        labelStyle:
-                                        TextStyle(fontSize: 15)),
+                                        labelStyle: TextStyle(fontSize: 15)),
                                   ),
                                 ),
                               ],
@@ -308,11 +306,10 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       print('+$otp+');
                                       setState(() {
                                         otp =
-                                        '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}';
+                                            '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}';
                                         if (value.length >= 1) {
                                           otp3FocusNode.unfocus();
-                                          FocusScope.of(context)
-                                              .nextFocus();
+                                          FocusScope.of(context).nextFocus();
                                         }
                                         if (value.length < 1) {
                                           otp3FocusNode.unfocus();
@@ -322,8 +319,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       });
                                     },
                                     decoration: const InputDecoration(
-                                        labelStyle:
-                                        TextStyle(fontSize: 15)),
+                                        labelStyle: TextStyle(fontSize: 15)),
                                   ),
                                 ),
                               ],
@@ -349,12 +345,11 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       otperror = null;
                                       print('+$otp+');
                                       setState(() {
-                                         otp =
-                                        '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}${otp4Controller.text}';
+                                        otp =
+                                            '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}${otp4Controller.text}';
                                         if (value.length >= 1) {
                                           otp4FocusNode.unfocus();
-                                          FocusScope.of(context)
-                                              .nextFocus();
+                                          FocusScope.of(context).nextFocus();
                                         }
                                         if (value.length < 1) {
                                           otp4FocusNode.unfocus();
@@ -364,8 +359,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       });
                                     },
                                     decoration: const InputDecoration(
-                                        labelStyle:
-                                        TextStyle(fontSize: 15)),
+                                        labelStyle: TextStyle(fontSize: 15)),
                                   ),
                                 ),
                               ],
@@ -392,12 +386,11 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       print('+$otp+');
                                       setState(() {
                                         otp =
-                                        '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}${otp4Controller.text}${otp5Controller.text}';
+                                            '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}${otp4Controller.text}${otp5Controller.text}';
 
                                         if (value.length >= 1) {
                                           otp5FocusNode.unfocus();
-                                          FocusScope.of(context)
-                                              .nextFocus();
+                                          FocusScope.of(context).nextFocus();
                                         }
                                         if (value.length < 1) {
                                           otp5FocusNode.unfocus();
@@ -407,8 +400,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       });
                                     },
                                     decoration: const InputDecoration(
-                                        labelStyle:
-                                        TextStyle(fontSize: 15)),
+                                        labelStyle: TextStyle(fontSize: 15)),
                                   ),
                                 ),
                               ],
@@ -435,7 +427,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       print('+$otp+');
                                       setState(() {
                                         otp =
-                                        '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}${otp4Controller.text}${otp5Controller.text}${otp6Controller.text}';
+                                            '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}${otp4Controller.text}${otp5Controller.text}${otp6Controller.text}';
                                         if (value.length >= 1) {
                                           otp4FocusNode.unfocus();
                                           FocusScope.of(context).unfocus();
@@ -449,8 +441,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
                                       });
                                     },
                                     decoration: const InputDecoration(
-                                        labelStyle:
-                                        TextStyle(fontSize: 15)),
+                                        labelStyle: TextStyle(fontSize: 15)),
                                   ),
                                 ),
                               ],
@@ -509,9 +500,12 @@ class _VerifyOTPState extends State<VerifyOTP> {
                           borderRadius: BorderRadius.all(Radius.circular(10)))),
                   onPressed: () {
                     otp =
-                    '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}${otp4Controller.text}${otp5Controller.text}${otp6Controller.text}';
+                        '${otp1Controller.text}${otp2Controller.text}${otp3Controller.text}${otp4Controller.text}${otp5Controller.text}${otp6Controller.text}';
 
-                    VerifyOtp( otp.toString(),widget.number,);
+                    VerifyOtp(
+                      otp.toString(),
+                      widget.number,
+                    );
                     print(widget.number);
                   },
                   child: Text(

@@ -1,36 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'AddressInput.dart';
-import 'All_Address.dart';
+
+import 'AddressInputP.dart';
+import 'All_AddressP.dart';
+
 
 class UpdateAddress extends StatefulWidget {
-  const UpdateAddress({ required this.Name, required this.Address, required this.City, required this.state, required this.ZipCode, required this.Id});
-  final String Id,Name,Address,City,state;
+  const UpdateAddress(
+      {required this.Name,
+      required this.Address,
+      required this.City,
+      required this.state,
+      required this.ZipCode,
+      required this.Id});
+  final String Id, Name, Address, City, state;
   final String ZipCode;
-
 
   @override
   State<UpdateAddress> createState() => _UpdateAddressState();
 }
-Future<void> updateAddress(address_id,
-    full_name,
-    address,
-    city,
-    postcode,
-    state) async {
-  try{
+
+Future<void> updateAddress(
+    address_id, full_name, address, city, postcode, state) async {
+  try {
     var headers = {
-      'x-access-token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzk3LCJpYXQiOjE2Nzc3NzI4NDB9.MsjQ4H2x6wPyqNEzTMqBP-x4cgwNwt_1E4SZ5ZxIYZE',
+      'x-access-token':
+          'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzk3LCJpYXQiOjE2Nzc3NzI4NDB9.MsjQ4H2x6wPyqNEzTMqBP-x4cgwNwt_1E4SZ5ZxIYZE',
       'Cookie': 'ci_session=7d4832524981a8c354021e32be4b985be19526ea'
     };
-    var request = http.MultipartRequest('POST', Uri.parse('http://thenirmanstore.com/v1/account/update_address'));
+    var request = http.MultipartRequest('POST',
+        Uri.parse('http://thenirmanstore.com/v1/account/update_address'));
     request.fields.addAll({
       'address_id': address_id,
       'full_name': full_name,
       'address': address,
       'city': city,
       'postcode': postcode,
-      'state':state
+      'state': state
     });
 
     request.headers.addAll(headers);
@@ -39,16 +45,14 @@ Future<void> updateAddress(address_id,
 
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
-    }
-    else {
+    } else {
       print(response.reasonPhrase);
     }
-
-
   } catch (e) {
     print(e.toString());
   }
 }
+
 class _UpdateAddressState extends State<UpdateAddress> {
   TextEditingController nameController = TextEditingController();
   TextEditingController addressController = TextEditingController();
@@ -60,7 +64,7 @@ class _UpdateAddressState extends State<UpdateAddress> {
     try {
       var headers = {
         'x-access-token':
-        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzk3LCJpYXQiOjE2Nzc3NzI4NDB9.MsjQ4H2x6wPyqNEzTMqBP-x4cgwNwt_1E4SZ5ZxIYZE',
+            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzk3LCJpYXQiOjE2Nzc3NzI4NDB9.MsjQ4H2x6wPyqNEzTMqBP-x4cgwNwt_1E4SZ5ZxIYZE',
         'Cookie': 'ci_session=fb47b67462ef5857dde5857303c1f52f7749e928'
       };
       var request = http.MultipartRequest('POST',
@@ -86,16 +90,18 @@ class _UpdateAddressState extends State<UpdateAddress> {
       print(e.toString());
     }
   }
-@override
+
+  @override
   void initState() {
     nameController.text = widget.Name;
     addressController.text = widget.Address;
-    cityController.text= widget.City;
-    stateController.text= widget.state;
-    zipController.text= widget.ZipCode.toString();
+    cityController.text = widget.City;
+    stateController.text = widget.state;
+    zipController.text = widget.ZipCode.toString();
 
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,19 +133,29 @@ class _UpdateAddressState extends State<UpdateAddress> {
               padding: const EdgeInsets.only(top: 30),
               child: Column(children: [
                 AddressInput(
-                  lableText: "Full Name", controller: nameController,keyboardType: TextInputType.name,),
+                  lableText: "Full Name",
+                  controller: nameController,
+                  keyboardType: TextInputType.name,
+                ),
                 AddressInput(
-                    lableText: "Address", controller: addressController,keyboardType: TextInputType.name),
-                AddressInput(lableText: "City", controller: cityController,keyboardType: TextInputType.name),
-                AddressInput(lableText: "Zip Code (Postal Code)",
-                    controller: zipController,keyboardType: TextInputType.number),
-                AddressInput(lableText: "State/Province/Region",
-                    controller: stateController,keyboardType: TextInputType.name),
-
-
+                    lableText: "Address",
+                    controller: addressController,
+                    keyboardType: TextInputType.name),
+                AddressInput(
+                    lableText: "City",
+                    controller: cityController,
+                    keyboardType: TextInputType.name),
+                AddressInput(
+                    lableText: "Zip Code (Postal Code)",
+                    controller: zipController,
+                    keyboardType: TextInputType.number),
+                AddressInput(
+                    lableText: "State/Province/Region",
+                    controller: stateController,
+                    keyboardType: TextInputType.name),
                 Padding(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                   child: Material(
                     borderRadius: BorderRadius.circular(30),
                     elevation: 5,
@@ -152,8 +168,9 @@ class _UpdateAddressState extends State<UpdateAddress> {
                         ),
                         child: TextButton(
                             onPressed: () {
-
-                              updateAddress(widget.Id,nameController.text.toString(),
+                              updateAddress(
+                                  widget.Id,
+                                  nameController.text.toString(),
                                   addressController.text.toString(),
                                   cityController.text.toString(),
                                   zipController.text.toString(),
@@ -161,7 +178,7 @@ class _UpdateAddressState extends State<UpdateAddress> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => All_Address()));
+                                      builder: (context) => All_AddressP()));
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
@@ -175,11 +192,8 @@ class _UpdateAddressState extends State<UpdateAddress> {
               ]),
             ),
           ),
-
         ],
       ),
     );
   }
-
-
 }

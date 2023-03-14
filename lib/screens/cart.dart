@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'checkout.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../model/home.dart';
 import '../model/productmodel.dart';
-
+import 'checkout.dart';
 
 class Cart extends StatefulWidget {
   const Cart({super.key});
@@ -28,10 +28,12 @@ class _CartState extends State<Cart> {
   List cart_item_id = [];
   List cart_id = [];
 
-  List<Widget> cartlist = [];
+  Map cartlist = Map();
 
   var data;
   var datalength;
+
+  bool checkoutable = false;
 
   Future<List> callapi() async {
     print('apicalled');
@@ -42,52 +44,28 @@ class _CartState extends State<Cart> {
           'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzk3LCJpYXQiOjE2Nzc3NzI4NDB9.MsjQ4H2x6wPyqNEzTMqBP-x4cgwNwt_1E4SZ5ZxIYZE'
     });
 
-    setState(() {
-      apicalled = true;
-    });
+    if (responce.statusCode == 200) {
+      setState(() {
+        apicalled = true;
+        cartlist = jsonDecode(responce.body);
+      });
+    }
+
+    if (cartlist['status'] == 1) {
+      setState(() {
+        checkoutable = true;
+      });
+    }
+
     var json = jsonDecode(responce.body);
     // print(responce.statusCode);
-    print('json msg printed?');
-    print(json['data']);
-    print(json.length);
+    //print('json msg printed?');
+  //  print(json['data']);
+    //print(json.length);
     try {} catch (e) {}
     data = json['data'];
     datalength = json['data'].length;
-
-    for (int i = 0; i < datalength; i++) {
-      prodId.add(data[i]['id']);
-      prodName.add(data[i]['product_name']);
-      prodImage.add(data[i]['product_image'][0]['search_image']);
-      prodPrice.add(data[i]['price']);
-      prodRatings.add(data[i]['product_ratings']);
-      cart_item_id.add(data[i]['cart_item_id']);
-      cart_id.add(data[i]['cart_id']);
-    }
-
-    for (int i = 0; i < prodName.length; i++) {
-      cartlist.add(ProductModel(
-        // prodid: prodId[i],
-        image: prodImage[i],
-        title: prodName[i],
-        ratings: 4,
-        price: prodPrice[i], ratedby: 5, cart_id: cart_id[i],
-        cart_item_id: cart_item_id[i],
-      ));
-    }
-    // name = data[0]['name'];
-    // setState(() {});
-    print(prodName);
-    // if (json['status'] == 1) {
-    //   Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(
-    //         builder: (context) => HomePage(),
-    //       ));
-    // } else {
-    //   setState(() {
-    //     _error = json['message'];
-    //   });
-    // }
+    //print(prodName);
     return prodName;
   }
 
@@ -110,160 +88,273 @@ class _CartState extends State<Cart> {
         leading: SizedBox(),
         backgroundColor: Color.fromARGB(255, 230, 230, 230),
         elevation: 1,
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.search,
-                color: Colors.black,
-                size: 27,
-              ))
-        ],
+
       ),
       body: Stack(
         children: [
           Container(
+            height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             color: Color.fromARGB(255, 230, 230, 230),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'View and edit your cart\nor proceed to check out!',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    SizedBox(height: 17),
-                    cartlist.isEmpty
-                        ? Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 70.0),
-                              child: Column(
-                                children: [
-                                  if (apicalled == false)
-                                    Center(
-                                        child: CircularProgressIndicator
-                                            .adaptive()),
-                                  if (apicalled == true)
-                                    Center(
+            padding: const EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'View and edit your cart\nor proceed to check out!',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      SizedBox(height: 17),
+                      cartlist['status'] != 0
+                          ? FutureBuilder(
+                              future: callapi(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                          height: MediaQuery.of(context).size.height*0.62,
+                                          child: GridView.builder(
+                                            itemCount: cartlist['data'].length,
+                                            gridDelegate:
+                                                SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount:
+                                                  2, // Set the number of columns in the grid
+                                              crossAxisSpacing:
+                                                  10, // Set the spacing between columns
+                                              mainAxisSpacing:
+                                                  10, // Set the spacing between rows
+                                            ),
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return ProductModel(
+                                                api: 'cart',
+                                                image: cartlist['data'][index]
+                                                        ['product_image'][0]
+                                                    ['search_image'],
+                                                title: cartlist['data'][index]
+                                                    ['product_name'],
+                                                ratings: cartlist['data'][index]
+                                                        ['product_ratings']
+                                                    .toString(),
+                                                price: cartlist['data'][index]
+                                                    ['price'],
+                                                cart_id: cartlist['data'][index]
+                                                    ['cart_id'],
+                                                cart_item_id: cartlist['data']
+                                                    [index]['cart_item_id'],
+                                              );
+                                            },
+                                          )),
+                                      Align(
+                                        alignment: Alignment.topCenter,
+                                        child: Stack(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.all(15.0),
+                                              child: Material(
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                                elevation: 5,
+                                                child: Container(
+                                                    width: MediaQuery.of(context)
+                                                        .size
+                                                        .width,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(30),
+                                                      // rgba(211, 38, 38, 0.25);
+                                                      color: Colors.blue[800],
+                                                    ),
+                                                    child: TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .push(
+                                                                  MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                CheckOut(
+                                                                    deliverycharges:
+                                                                        '150',
+                                                                    finalprice:
+                                                                        '13000',
+                                                                    paymentmethod:
+                                                                        'COD'),
+                                                          ));
+                                                        },
+                                                        child: Text(
+                                                          'CHECK OUT',
+                                                          style: TextStyle(
+                                                              color: Colors.white),
+                                                        ))),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                }
+                                if (snapshot.hasError)
+                                  return Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 70.0),
                                       child: Column(
                                         children: [
-                                          Icon(
-                                              Icons
-                                                  .remove_shopping_cart_outlined,
-                                              size: 75),
-                                          SizedBox(height: 20),
-                                          Text(
-                                            'Your cart is empty',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 25),
-                                          )
+                                          if (apicalled == false)
+                                            Center(
+                                                child: CircularProgressIndicator
+                                                    .adaptive()),
+                                          if (apicalled == true)
+                                            Center(
+                                              child: Column(
+                                                children: [
+                                                  Icon(
+                                                      Icons
+                                                          .remove_shopping_cart_outlined,
+                                                      size: 75),
+                                                  SizedBox(height: 20),
+                                                  Text(
+                                                    'Your cart is empty',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 25),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
                                         ],
                                       ),
                                     ),
-                                ],
+                                  );
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 130),
+                                  child: Align(
+                                      alignment: Alignment.topCenter,
+                                      child:
+                                          CircularProgressIndicator.adaptive()),
+                                );
+                              },
+                            )
+                          : Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 70.0),
+                                child: Column(
+                                  children: [
+                                    if (apicalled == false)
+                                      Center(
+                                          child: CircularProgressIndicator
+                                              .adaptive()),
+                                    if (apicalled == true)
+                                      Center(
+                                        child: Column(
+                                          children: [
+                                            Icon(
+                                                Icons
+                                                    .remove_shopping_cart_outlined,
+                                                size: 75),
+                                            SizedBox(height: 20),
+                                            Text(
+                                              'Your cart is empty',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 25),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
-                          )
-                        : FutureBuilder(
-                            future: callapi(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData)
-                                return Expanded(
-                                  child: Container(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.5,
-                                    child: GridView.count(
-                                      crossAxisCount: 2,
-                                      mainAxisSpacing: 20,
-                                      children: cartlist,
-                                    ),
-                                  ),
-                                );
-
-                              return SizedBox();
-                            })
-                  ]),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: 170,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Column(
-                  children: [
-                    Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                bottomLeft: Radius.circular(10),
-                                bottomRight: Radius.circular(30),
-                                topRight: Radius.circular(30))),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                                hintText: 'Enter your promo code',
-                                border: InputBorder.none,
-                                suffixIcon: CircleAvatar(
-                                  backgroundColor: Colors.black,
-                                  child: Icon(
-                                    Icons.arrow_forward,
-                                    color: Colors.white,
-                                  ),
-                                )),
-                          ),
-                        )),
-                    SizedBox(height: 25),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Total amount:',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 15,
-                            )),
-                        Row(
-                          children: [
-                            Text('$price',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold)),
-                            Icon(Icons.currency_rupee_outlined, size: 17),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    Material(
-                      borderRadius: BorderRadius.circular(30),
-                      elevation: 5,
-                      child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            // rgba(211, 38, 38, 0.25);
-                            color: Colors.blue[800],
-                          ),
-                          child: TextButton(
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>CheckOut()));
-                              },
-                              child: Text(
-                                'CHECK OUT',
-                                style: TextStyle(color: Colors.white),
-                              ))),
-                    )
-                  ],
-                ),
+                    ]),
               ),
             ),
-          )
+          ),
+
+          // Align(
+          //   alignment: Alignment.bottomCenter,
+          //   child: Container(
+          //     padding:    const EdgeInsets.symmetric(horizontal: 15.0),
+          //     height: 170,
+          //     child: Column(
+          //       children: [
+          //         // Container(
+          //         //     decoration: BoxDecoration(
+          //         //         color: Colors.white,
+          //         //         borderRadius: BorderRadius.only(
+          //         //             topLeft: Radius.circular(10),
+          //         //             bottomLeft: Radius.circular(10),
+          //         //             bottomRight: Radius.circular(30),
+          //         //             topRight: Radius.circular(30))),
+          //         //     padding: const EdgeInsets.only(left: 20.0),
+          //         //     child: TextFormField(
+          //         //       decoration: InputDecoration(
+          //         //           hintText: 'Enter your promo code',
+          //         //           border: InputBorder.none,
+          //         //           suffixIcon: CircleAvatar(
+          //         //             backgroundColor: Colors.black,
+          //         //             child: Icon(
+          //         //               Icons.arrow_forward,
+          //         //               color: Colors.white,
+          //         //             ),
+          //         //           )),
+          //         //     )),
+          //         // SizedBox(height: 25),
+          //         // Row(
+          //         //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         //   children: [
+          //         //     Text('Total amount:',
+          //         //         style: TextStyle(
+          //         //           color: Colors.grey,
+          //         //           fontSize: 15,
+          //         //         )),
+          //         //     Row(
+          //         //       children: [
+          //         //         Text('$price',
+          //         //             style: TextStyle(
+          //         //                 color: Colors.black,
+          //         //                 fontWeight: FontWeight.bold)),
+          //         //         Icon(Icons.currency_rupee_outlined, size: 17),
+          //         //       ],
+          //         //     ),
+          //         //   ],
+          //         // ),
+          //         // SizedBox(height: 20),
+          //         Material(
+          //           borderRadius: BorderRadius.circular(30),
+          //           elevation: 5,
+          //           child: Container(
+          //               width: MediaQuery.of(context).size.width,
+          //               decoration: BoxDecoration(
+          //                 borderRadius: BorderRadius.circular(30),
+          //                 // rgba(211, 38, 38, 0.25);
+          //                 color: Colors.blue[800],
+          //               ),
+          //               child: TextButton(
+          //                   onPressed: () {
+          //                     Navigator.of(context).push(MaterialPageRoute(
+          //                       builder: (context) => CheckOut(
+          //                           deliverycharges: '150',
+          //                           finalprice: '13000',
+          //                           paymentmethod: 'COD'),
+          //                     ));
+          //                   },
+          //                   child: Text(
+          //                     'CHECK OUT',
+          //                     style: TextStyle(color: Colors.white),
+          //                   ))),
+          //         )
+          //       ],
+          //     ),
+          //   ),
+          // )
         ],
       ),
     );

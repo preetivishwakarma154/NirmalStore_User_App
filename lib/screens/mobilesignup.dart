@@ -280,7 +280,7 @@ class _MobileSignupWidgetState extends State<MobileSignupWidget> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.edit_sharp,
+                              Icons.edit_square,
                               size: 19,
                             ),
                             SizedBox(width: 5),
@@ -774,15 +774,17 @@ class _MobileSignupWidgetState extends State<MobileSignupWidget> {
                       borderRadius: BorderRadius.circular(10)),
                   child: TextButton(
                     onPressed: () async {
-                      if (validator()) {
-                        if (numbererror == null) {
-                          OTPrequested == false
-                              // ? verifyPhoneNumber(context)
-                              ? isPhoneNumberStored(phoneNumber)
-                              : verifyotp();
-                        }
-                      }
-                      setState(() {});
+                      // if (validator()) {
+                      //   if (numbererror == null) {
+
+                      //     // ? verifyPhoneNumber(context)
+                      //     // ? isPhoneNumberStored(phoneNumber)
+                      //     // : verifyotp();
+                      //   }
+                      // }
+                      setState(() {
+                        OTPrequested == true;
+                      });
                     },
                     child: Text(
                       OTPrequested == false ? 'Get OTP' : 'Verify OTP',
