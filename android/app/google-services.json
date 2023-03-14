@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "118718426656",
+    "project_id": "delethis",
+    "storage_bucket": "delethis.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118718426656:android:47c94206ce44887f8ed645",
+        "android_client_info": {
+          "package_name": "com.example.test_projectt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "118718426656-9ivc9h766tbj0j2ilehec2uhv0taqs62.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpoh9-av5nEAhb9ruE08q7fTuk-bD8iZ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "118718426656-9ivc9h766tbj0j2ilehec2uhv0taqs62.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
