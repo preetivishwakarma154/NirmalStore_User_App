@@ -4,29 +4,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
-
 import 'All_AddressP.dart';
 import 'SplashScreen.dart';
 
-class AddAddressP extends StatefulWidget {
-  AddAddressP({this.isfirstAddress});
-  var isfirstAddress;
+class UpdateAddress extends StatefulWidget {
+  const UpdateAddress(
+      {required this.Name,
+      required this.Address,
+      required this.City,
+      required this.state,
+      required this.ZipCode,
+      required this.Id});
+  final String Id, Name, Address, City, state;
+  final String ZipCode;
 
   @override
-  State<AddAddressP> createState() => _AddAddressPState();
+  State<UpdateAddress> createState() => _UpdateAddressState();
 }
 
-class _AddAddressPState extends State<AddAddressP> {
-  var valuefirst = false;
+Map updatelist = Map();
+
+class _UpdateAddressState extends State<UpdateAddress> {
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController cityController = TextEditingController();
   TextEditingController stateController = TextEditingController();
   TextEditingController zipController = TextEditingController();
-
-  Map datalsit = Map();
-
+  TextEditingController countryController = TextEditingController();
   String? nameerror;
 
   String? addresserror;
@@ -37,50 +42,88 @@ class _AddAddressPState extends State<AddAddressP> {
 
   String? stateerror;
 
-  Future<void> AddAddressP(
-      full_name, address, city, postcode, state, Default) async {
+  Future<void> updateAddress(
+      address_id, full_name, address, city, postcode, state) async {
     try {
       var headers = {
-        'x-access-token': '$globalusertoken',
-        'Cookie': 'ci_session=d8a218bacd60260e9622b4e8942267929bab1e32'
+        'x-access-token':
+        '$globalusertoken',
+        'Cookie': 'ci_session=7d4832524981a8c354021e32be4b985be19526ea'
       };
-      var request = http.MultipartRequest('POST', Uri.parse('http://thenirmanstore.com/v1/account/add_address'));
+      var request = http.MultipartRequest('POST',
+          Uri.parse('http://thenirmanstore.com/v1/account/update_address'));
+      request.fields.addAll({
+        'address_id': address_id,
+        'full_name': full_name,
+        'address': address,
+        'city': city,
+        'postcode': postcode,
+        'state': state
+      });
+
+      request.headers.addAll(headers);
+      print('--------------------------------------------');
+
+      http.StreamedResponse response = await request.send();
+      var data = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        updatelist = jsonDecode(data);
+        print(updatelist);
+        if (updatelist['status'] == 1) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => All_AddressP()));
+        } else {
+          CircularProgressIndicator();
+        }
+      } else {
+        print(response.reasonPhrase);
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> addAddress(full_name, address, city, postcode, state) async {
+    try {
+      var headers = {
+        'x-access-token':
+        '$globalusertoken',
+        'Cookie': 'ci_session=fb47b67462ef5857dde5857303c1f52f7749e928'
+      };
+      var request = http.MultipartRequest('POST',
+          Uri.parse('http://thenirmanstore.com/v1/account/add_address'));
       request.fields.addAll({
         'full_name': full_name,
         'address': address,
         'city': city,
         'postcode': postcode,
-        'state': state,
-        'default': Default
+        'state': state
       });
 
       request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();
-      var data =await response.stream.bytesToString();
 
       if (response.statusCode == 200) {
-        datalsit= jsonDecode(data);
-        if(datalsit['status']==1){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => All_AddressP()));
-        }else{
-          CircularProgressIndicator();
-        }
-        print(datalsit);
-      }
-      else {
+        print(await response.stream.bytesToString());
+      } else {
         print(response.reasonPhrase);
       }
-
     } catch (e) {
       print(e.toString());
     }
   }
 
   @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
+  void initState() {
+    nameController.text = widget.Name;
+    addressController.text = widget.Address;
+    cityController.text = widget.City;
+    stateController.text = widget.state;
+    zipController.text = widget.ZipCode.toString();
+
+    super.initState();
   }
 
   @override
@@ -97,12 +140,21 @@ class _AddAddressPState extends State<AddAddressP> {
         leading: SizedBox(),
         backgroundColor: Color.fromARGB(255, 249, 248, 248),
         elevation: 0.5,
+        actions: [
+          IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.search,
+                color: Colors.black,
+                size: 27,
+              ))
+        ],
       ),
       body: Stack(
         children: [
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+              padding: const EdgeInsets.only(top: 30),
               child: Form(
                 key: formkey,
                 child: Column(children: [
@@ -122,12 +174,11 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 nameerror = "Name can't be empty";
                               });
-                            }else if (value!.length < 3) {
+                            } else if (value!.length < 3) {
                               setState(() {
-                                nameerror= "Too short address";
+                                nameerror = "Too short address";
                               });
                             }
-
                           },
                           onChanged: (value) {
                             setState(() {
@@ -183,11 +234,10 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 addresserror = "Address can't be empty";
                               });
-                            }else if(value!.length<3){
+                            } else if (value!.length < 3) {
                               setState(() {
                                 addresserror = "Too short address ";
                               });
-
                             }
                           },
                           onChanged: (value) {
@@ -207,7 +257,6 @@ class _AddAddressPState extends State<AddAddressP> {
                       child: Column(
                         children: [
                           Container(
-
                             width: MediaQuery.of(context).size.width,
                             padding: EdgeInsets.all(0),
                             child: Row(
@@ -245,7 +294,7 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 cityerror = "City name can't be empty";
                               });
-                            }else if (value!.length < 3) {
+                            } else if (value!.length < 3) {
                               setState(() {
                                 cityerror = "Too short city name";
                               });
@@ -308,7 +357,7 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 ziperror = "Zip code can't be empty";
                               });
-                            }else if (value.length < 6) {
+                            } else if (value.length < 6) {
                               setState(() {
                                 ziperror = "Please enter valid zip code";
                               });
@@ -368,7 +417,7 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 stateerror = "State name can't be empty";
                               });
-                            }else if(value.length<3){
+                            } else if (value.length < 3) {
                               stateerror = "Too short State name";
                             }
                           },
@@ -408,19 +457,6 @@ class _AddAddressPState extends State<AddAddressP> {
                       ),
                     ),
                   SizedBox(height: 10),
-                  if (widget.isfirstAddress != 1) ...[
-                    CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.leading,
-                      activeColor: Colors.blue.shade800,
-                      title: const Text(' Set as default address'),
-                      value: this.valuefirst,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          this.valuefirst = value!;
-                        });
-                      },
-                    )
-                  ],
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 15, vertical: 10),
@@ -437,38 +473,19 @@ class _AddAddressPState extends State<AddAddressP> {
                           child: TextButton(
                               onPressed: () {
                                 if (formkey.currentState!.validate()) {}
-                                var checkboxValue;
-                                if (valuefirst == true) {
-                                  checkboxValue = 1;
-                                } else {
-                                  checkboxValue = 0;
-                                }
-                                print(nameController.text.toString());
-                                print(addressController.text.toString());
-                                print(cityController.text.toString());
-                                print(zipController.text.toString());
-                                print(stateController.text.toString());
 
-
-                                if(nameerror==null&&
-                                addresserror==null&&
-                                cityerror==null&&
-                                ziperror==null&&
-                                stateerror==null){
-                                  AddAddressP(
-                                      nameController.text.toString(),
-                                      addressController.text.toString(),
-                                      cityController.text.toString(),
-                                      zipController.text.toString(),
-                                      stateController.text.toString(),
-                                      checkboxValue.toString());
-                                }
-
+                                updateAddress(
+                                    widget.Id,
+                                    nameController.text.toString(),
+                                    addressController.text.toString(),
+                                    cityController.text.toString(),
+                                    zipController.text.toString(),
+                                    stateController.text.toString());
 
                                 // Navigator.push(
                                 //     context,
                                 //     MaterialPageRoute(
-                                //         builder: (context) => All_Address()));
+                                //         builder: (context) => All_AddressP()));
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),

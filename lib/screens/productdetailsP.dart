@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:http/http.dart' as http;
 
+import 'SplashScreen.dart';
 import 'cart.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'cartprodmodel.dart';
+
 import 'homepage.dart';
 
 class ProductDetailsP extends StatefulWidget {
@@ -40,26 +41,35 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
   bool _isVertical = false;
 
   Map<String, dynamic> datalist = Map();
-  Map<String, dynamic> wishlistDatalist = Map();
+  Map<String, dynamic> AddWishlist = Map();
   Map<String, dynamic> CartListDatalist = Map();
 
   var prodName;
   var prodPrice;
   var prodImage;
   var prodRatings;
+  var Id;
 
   var datalength;
-
+  var wish;
+  int index = 0;
+  Map wishlist = Map();
+  Map DeleteWishlist = Map();
+  bool apicalled = false;
   var discount = '0';
   var long_description;
   var short_description;
 
   var available;
 
-  Future<void> getProductDetailsP(
+  bool allreadyInWishList = false;
+
+  var wishlistLength;
+
+  Future getProductDetailsP(
     String id,
   ) async {
-    print('apicalled');
+    print('details apicalled');
     var url = Uri.parse('http://thenirmanstore.com/v1/product/products');
     // print(_googleSignIn.currentUser?.photoUrl.toString());
     print('Category Id - ${widget.prodid}');
@@ -79,6 +89,8 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
 
     for (int i = 0; i < datalength; i++) {
       prodName = (data[i]['product_name']);
+      Id = (data[i]['id']);
+
       prodImage = (data[i]['product_image'][0]['search_image']);
       prodPrice = (data[i]['price']);
       discount = (data[i]['discount_percent']);
@@ -100,7 +112,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
     //   ));
     // }
     // name = data[0]['name'];
-    setState(() {});
+
     print(prodName);
     // if (json['status'] == 1) {
     //   Navigator.pushReplacement(
@@ -113,7 +125,102 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
     //     _error = json['message'];
     //   });
     // }
-    return prodName;
+    setState(() {});
+    //  return prodName;
+  }
+
+  Future<void> productWishList() async {
+    try {
+      var headers = {
+        'x-access-token':
+        '$globalusertoken',
+        'Cookie': 'ci_session=993f8ce175c6855b3ce46babd7962928f32a41ed'
+      };
+      var request = http.MultipartRequest('POST',
+          Uri.parse('http://thenirmanstore.com/v1/product/product_wish'));
+
+      request.headers.addAll(headers);
+      // print('wishlist api called');
+
+      http.StreamedResponse response = await request.send();
+      wish = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        setState(() {
+          wishlist = jsonDecode(wish);
+
+          wishlistLength = (wishlist['data'].length);
+        });
+        if (wishlist['data'].isEmpty) {
+          setState(() {
+            allreadyInWishList = false;
+          });
+
+        } else if(wishlist['status']==1){
+          for (int i = 0; i < wishlistLength; i++) {
+            if (wishlist['data'][i]['id'] == Id) {
+              setState(() {
+                allreadyInWishList = true;
+              });
+
+            }
+            // else if(AddWishlist['status']==0){
+            //   setState(() {
+            //     allreadyInWishList = true;
+            //   });
+            //
+            //
+            // }else if(DeleteWishlist['status']==1){
+            //   setState(() {
+            //     allreadyInWishList = false;
+            //   });
+            //
+            // }
+
+
+          }
+        }
+        //print(wishlist);
+      } else {
+        print(response.reasonPhrase);
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+    return wish;
+  }
+
+  void deletefromwishlist(id) async {
+    try {
+      var headers = {
+        'x-access-token':
+        '$globalusertoken',
+        'Cookie': 'ci_session=e8daebc9c3fe6cc93fdf999ed4c5457e27b5c185'
+      };
+      var request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+              'http://thenirmanstore.com/v1/product/delete_wish_list_product'));
+      request.fields.addAll({'product_id': id});
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+      var data = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        DeleteWishlist = jsonDecode(data);
+        print(DeleteWishlist);
+        setState(() {
+          allreadyInWishList = false;
+        });
+      } else {
+        print(response.reasonPhrase);
+      }
+    } catch (e) {
+      print(e);
+    }
+    // return json;
   }
 
   Future<void> productAddWishList(
@@ -122,7 +229,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
     try {
       var headers = {
         'x-access-token':
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NDIyLCJpYXQiOjE2Nzc5MzMyMzR9.jolwUrSbFTJhhbCXK80I4Qp-OlX47aUHPqkwPj56AoY',
+        '$globalusertoken',
         'Cookie': 'ci_session=2d0e68281b0950c4d94564b77b855aab995d6f68'
       };
       var request = http.MultipartRequest(
@@ -138,9 +245,12 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
 
       if (response.statusCode == 200) {
         setState(() {
-          wishlistDatalist = json.decode(wishlistData);
+          AddWishlist = json.decode(wishlistData);
         });
-        print(wishlistDatalist);
+        print(AddWishlist);
+        setState(() {
+          allreadyInWishList = true;
+        });
       } else {
         print(response.reasonPhrase);
       }
@@ -156,7 +266,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
       print('Api called');
       var headers = {
         'x-access-token':
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzk3LCJpYXQiOjE2Nzc3NzI4NDB9.MsjQ4H2x6wPyqNEzTMqBP-x4cgwNwt_1E4SZ5ZxIYZE',
+        '$globalusertoken',
       };
       var request = http.MultipartRequest(
           'POST', Uri.parse('http://thenirmanstore.com/v1/cart/add_to_cart'));
@@ -197,6 +307,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
   @override
   void initState() {
     getProductDetailsP(widget.prodid);
+    productWishList();
 
     super.initState();
   }
@@ -220,259 +331,289 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
               ),
             ),
           )
-        : Scaffold(
-            appBar: AppBar(
-                centerTitle: true,
-                elevation: 1,
-                leading: IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(Icons.arrow_back_ios_new_rounded,
-                        color: Colors.black)),
-                backgroundColor: Colors.white70,
-                title: Text(prodName,
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold)),
-                actions: [
-                  Padding(
-                    padding:  EdgeInsets.symmetric(horizontal:20 ),
-                    child: IconButton(
+        : FutureBuilder(
+            future: productWishList(),
+            builder: (context, snapshot) {
+              return Scaffold(
+                appBar: AppBar(
+                    centerTitle: true,
+                    elevation: 1,
+                    leading: IconButton(
                         onPressed: () {
-                          productAddWishList(1);
+                          Navigator.pop(context);
                         },
-                        icon: Icon(
-                            wishlistDatalist['status'] == 1
-                                ? Icons.favorite_border_outlined
-                                : Icons.favorite,
-                            color: wishlistDatalist['status'] == 1
-                                ? Colors.black
-                                : Colors.pink)),
-                  ),
+                        icon: Icon(Icons.arrow_back_ios_new_rounded,
+                            color: Colors.black)),
+                    backgroundColor: Colors.white70,
+                    title: Text(prodName,
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.bold)),
+                    actions: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: IconButton(
+                            onPressed: () async {
+                              print(allreadyInWishList);
+                              //  print("+++++++++++++++++++"+wishlist['data'][index]['id']);
 
-                ]),
-            body: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                Image(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: 270,
-                                    image: NetworkImage(prodImage)),
 
-                                Image(
-                                    height: 270,
-                                    image: NetworkImage(prodImage)),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Image(
-                                    height: 270,
-                                    image: NetworkImage(prodImage)),
-                                // Image(
-                                //     height: 270,
-                                //     image: AssetImage(widget.prodimage[3])),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              if (allreadyInWishList == false) {
+                                productAddWishList(Id);
+                                                          }
+                              // else if (DeleteWishlist['status'] == 1) {
+                              //   productAddWishList(Id);
+                              // }
+                              else {
+
+                                deletefromwishlist(Id);
+
+                              }
+
+                            },
+                            icon: Icon(
+                                (allreadyInWishList == true)
+                                    ? Icons.favorite
+                                    : Icons.favorite_border_outlined,
+                                color: (allreadyInWishList == true)
+                                    ? Colors.pink
+                                    : Colors.black)),
+                      ),
+                    ]),
+                body: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Stack(
+                    children: [
+                      SingleChildScrollView(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    Image(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        height: 270,
+                                        image: NetworkImage(prodImage)),
+
+                                    Image(
+                                        height: 270,
+                                        image: NetworkImage(prodImage)),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                    Image(
+                                        height: 270,
+                                        image: NetworkImage(prodImage)),
+                                    // Image(
+                                    //     height: 270,
+                                    //     image: AssetImage(widget.prodimage[3])),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 20),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Icon(Icons.currency_rupee_outlined,
-                                      size: 17.5),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Text(prodPrice,
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold)),
+                                      Icon(Icons.currency_rupee_outlined,
+                                          size: 17.5),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Text(prodPrice,
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold)),
+                                        ],
+                                      ),
                                     ],
                                   ),
+                                  if (double.parse(discount) > 0.00)
+                                    Text("Discount ${discount.toString()} %",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold)),
                                 ],
                               ),
-                              if (double.parse(discount) > 0.00)
-                                Text("Discount ${discount.toString()} %",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                          SizedBox(height: 15),
-                          Text(short_description,
-                              style: TextStyle(
-                                color: Colors.grey[700],
-                              )),
-                          SizedBox(height: 10),
-                          Divider(
-                            color: Colors.grey,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              if (itemdetailsopen == false) {
-                                itemdetailsopen = true;
-                                setState(() {});
-                              } else {
-                                itemdetailsopen = false;
-                                setState(() {});
-                              }
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                              SizedBox(height: 15),
+                              Text(short_description,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                  )),
+                              SizedBox(height: 10),
+                              Divider(
+                                color: Colors.grey,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  if (itemdetailsopen == false) {
+                                    itemdetailsopen = true;
+                                    setState(() {});
+                                  } else {
+                                    itemdetailsopen = false;
+                                    setState(() {});
+                                  }
+                                },
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'More Details',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Icon(
+                                          itemdetailsopen == false
+                                              ? Icons
+                                                  .keyboard_arrow_right_outlined
+                                              : Icons
+                                                  .keyboard_arrow_down_rounded,
+                                          color: Colors.grey[700],
+                                        )
+                                      ]),
+                                ),
+                              ),
+                              if (itemdetailsopen == true)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'More Details',
+                                      '$long_description',
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        color: Colors.grey[700],
                                       ),
                                     ),
-                                    Icon(
-                                      itemdetailsopen == false
-                                          ? Icons.keyboard_arrow_right_outlined
-                                          : Icons.keyboard_arrow_down_rounded,
-                                      color: Colors.grey[700],
-                                    )
-                                  ]),
-                            ),
-                          ),
-                          if (itemdetailsopen == true)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                                  ],
+                                ),
+                              Divider(
+                                color: Colors.grey,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  if (shippinginfoopen == false) {
+                                    shippinginfoopen = true;
+                                    setState(() {});
+                                  } else {
+                                    shippinginfoopen = false;
+                                    setState(() {});
+                                  }
+                                },
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Shipping Info',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Icon(
+                                          shippinginfoopen == false
+                                              ? Icons
+                                                  .keyboard_arrow_right_outlined
+                                              : Icons
+                                                  .keyboard_arrow_down_rounded,
+                                          color: Colors.grey[700],
+                                        )
+                                      ]),
+                                ),
+                              ),
+                              if (shippinginfoopen == true)
                                 Text(
-                                  '$long_description',
+                                  'xz',
                                   style: TextStyle(
                                     color: Colors.grey[700],
                                   ),
                                 ),
-                              ],
-                            ),
-                          Divider(
-                            color: Colors.grey,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              if (shippinginfoopen == false) {
-                                shippinginfoopen = true;
-                                setState(() {});
-                              } else {
-                                shippinginfoopen = false;
-                                setState(() {});
-                              }
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Shipping Info',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Icon(
-                                      shippinginfoopen == false
-                                          ? Icons.keyboard_arrow_right_outlined
-                                          : Icons.keyboard_arrow_down_rounded,
-                                      color: Colors.grey[700],
-                                    )
-                                  ]),
-                            ),
-                          ),
-                          if (shippinginfoopen == true)
-                            Text(
-                              'xz',
-                              style: TextStyle(
-                                color: Colors.grey[700],
+                              Divider(
+                                color: Colors.grey,
                               ),
-                            ),
-                          Divider(
-                            color: Colors.grey,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              if (supportopen == false) {
-                                supportopen = true;
-                                setState(() {});
-                              } else {
-                                supportopen = false;
-                                setState(() {});
-                              }
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Support',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Icon(
-                                      supportopen == false
-                                          ? Icons.keyboard_arrow_right_outlined
-                                          : Icons.keyboard_arrow_down_rounded,
-                                      color: Colors.grey[700],
-                                    )
-                                  ]),
-                            ),
-                          ),
-                          if (supportopen == true)
-                            Text(
-                              'widget.support',
-                              style: TextStyle(
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          Divider(
-                            color: Colors.grey,
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'You can also like this',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                '12 items',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey[700],
+                              InkWell(
+                                onTap: () {
+                                  if (supportopen == false) {
+                                    supportopen = true;
+                                    setState(() {});
+                                  } else {
+                                    supportopen = false;
+                                    setState(() {});
+                                  }
+                                },
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Support',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Icon(
+                                          supportopen == false
+                                              ? Icons
+                                                  .keyboard_arrow_right_outlined
+                                              : Icons
+                                                  .keyboard_arrow_down_rounded,
+                                          color: Colors.grey[700],
+                                        )
+                                      ]),
                                 ),
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
+                              ),
+                              if (supportopen == true)
+                                Text(
+                                  'widget.support',
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              Divider(
+                                color: Colors.grey,
+                              ),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              // Row(
+                              //   mainAxisAlignment:
+                              //       MainAxisAlignment.spaceBetween,
+                              //   children: [
+                              //     Text(
+                              //       'You can also like this',
+                              //       style: TextStyle(
+                              //           fontSize: 16,
+                              //           color: Colors.black,
+                              //           fontWeight: FontWeight.bold),
+                              //     ),
+                              //     Text(
+                              //       '12 items',
+                              //       style: TextStyle(
+                              //         fontSize: 13,
+                              //         color: Colors.grey[700],
+                              //       ),
+                              //     )
+                              //   ],
+                              // ),
+                              SizedBox(
+                                height: 5,
+                              ),
 //                           SingleChildScrollView(
 //                             scrollDirection: Axis.horizontal,
 //                             child: Row(
@@ -809,87 +950,89 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
 //                               ],
 //                             ),
 //                           ),
-                          Container(
-                            height: 60,
-                          )
-                        ]),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Material(
-                        borderRadius: BorderRadius.circular(30),
-                        elevation: 20,
-                        child: Container(
-                            height: 50,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              // rgba(211, 38, 38, 0.25);
-                              color: showsplash == false
-                                  ? Colors.blue[800]
-                                  : Colors.white,
-                            ),
-                            child: TextButton(
-                              onPressed: () {
-                                if (showviewcart == false &&
-                                    showsplash == false) {
-                                  setState(() {
-                                    showsplash = true;
-                                    showviewcart = false;
-                                  });
-                                  productaddedsplash();
-                                  productAddCart(widget.prodid);
-                                } else if (showviewcart == true &&
-                                    showsplash == false) {
-                                  showsplash = false;
-                                  showviewcart = false;
-                                  selectedIndex = 2;
-                                  Navigator.pushNamed(context, 'HomePage');
-                                }
-                              },
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  if (showviewcart == false &&
-                                      showsplash == false)
-                                    Text(
-                                      'ADD TO CART',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  if (showviewcart == true &&
-                                      showsplash == false)
-                                    Text(
-                                      'VIEW CART',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  if (showviewcart == false &&
-                                      showsplash == true)
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.done,
-                                            color: Colors.green, size: 23),
-                                        SizedBox(width: 5),
+                              Container(
+                                height: 60,
+                              )
+                            ]),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Material(
+                            borderRadius: BorderRadius.circular(30),
+                            elevation: 20,
+                            child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  // rgba(211, 38, 38, 0.25);
+                                  color: showsplash == false
+                                      ? Colors.blue[800]
+                                      : Colors.white,
+                                ),
+                                child: TextButton(
+                                  onPressed: () {
+                                    if (showviewcart == false &&
+                                        showsplash == false) {
+                                      setState(() {
+                                        showsplash = true;
+                                        showviewcart = false;
+                                      });
+                                      productaddedsplash();
+                                      productAddCart(widget.prodid);
+                                    } else if (showviewcart == true &&
+                                        showsplash == false) {
+                                      showsplash = false;
+                                      showviewcart = false;
+                                      selectedIndex = 2;
+                                      Navigator.pushNamed(context, 'HomePage');
+                                    }
+                                  },
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      if (showviewcart == false &&
+                                          showsplash == false)
                                         Text(
-                                          'ADDED',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 17,
-                                              color: Colors.black),
+                                          'ADD TO CART',
+                                          style: TextStyle(color: Colors.white),
                                         ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                            ))),
-                  )
-                ],
-              ),
-            ),
-          );
+                                      if (showviewcart == true &&
+                                          showsplash == false)
+                                        Text(
+                                          'VIEW CART',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      if (showviewcart == false &&
+                                          showsplash == true)
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.done,
+                                                color: Colors.green, size: 23),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              'ADDED',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 17,
+                                                  color: Colors.black),
+                                            ),
+                                          ],
+                                        ),
+                                    ],
+                                  ),
+                                ))),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            });
   }
 }

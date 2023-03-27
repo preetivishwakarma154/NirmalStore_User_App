@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import 'SplashScreen.dart';
 import 'editprofileP.dart';
-
 
 class ProfileScreenP extends StatefulWidget {
   const ProfileScreenP({
@@ -27,7 +27,7 @@ class _ProfileScreenPState extends State<ProfileScreenP> {
     try {
       var headers = {
         'x-access-token':
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NDIyLCJpYXQiOjE2Nzc5MzMyMzR9.jolwUrSbFTJhhbCXK80I4Qp-OlX47aUHPqkwPj56AoY',
+        '$globalusertoken',
         'Cookie': 'ci_session=dc51f8d959bc6201cd8ebc94d6b71a9e04d3cb65'
       };
       var request = http.MultipartRequest('GET',
@@ -45,7 +45,7 @@ class _ProfileScreenPState extends State<ProfileScreenP> {
         apicalled = true;
         print('apicalled');
         print(getList);
-        print(url + getList['data']['profile_picture']);
+        print(getList['data']['profile_picture']);
       } else {
         print(response.reasonPhrase);
       }
@@ -90,7 +90,9 @@ class _ProfileScreenPState extends State<ProfileScreenP> {
     return SafeArea(
       child: getList['status'] == 1
           ? Scaffold(
+
               appBar: AppBar(
+
                   title: Text(
                     'PROFILE',
                     style: TextStyle(
@@ -114,12 +116,10 @@ class _ProfileScreenPState extends State<ProfileScreenP> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => EditProfileP(
-                                        defaultimage:
-                                            'https://thenirmanstore.com/' +
-                                                getList['data']
-                                                    ['profile_picture'],
+                                        defaultimage: getList['data']
+                                            ['profile_picture'],
                                         name: getList['data']['username'],
-                                        number: getList['data']['phone'],
+                                        email: getList['data']['email'],
                                       )));
                         }
                       },
@@ -131,49 +131,75 @@ class _ProfileScreenPState extends State<ProfileScreenP> {
                       ],
                     )
                   ]),
-              body: FutureBuilder(
-                builder: (context, snapshot) {
-                  return Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 60,
-                              backgroundColor: Colors.white,
-                              child: CircularProgressIndicator.adaptive(),
-                              foregroundImage: NetworkImage(
-                                  'https://thenirmanstore.com/' +
-                                      getList['data']['profile_picture']),
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              getList['data']['username'],
-                              style: TextStyle(fontSize: 24),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              getList['data']['email'],
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
+              body: Container(
+
+
+                child: FutureBuilder(
+                  builder: (context, snapshot) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 60,
+                                backgroundColor: Colors.white,
+                                child: Text(''),
+                                foregroundImage: NetworkImage(
+                                    getList['data']['profile_picture']),
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                getList['data']['username'],
+                                style: TextStyle(fontSize: 24),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                getList['data']['email'],
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Divider(),
-                      ListTile(
-                        leading: Icon(Icons.home),
-                        title: Text('Address'),
-                        subtitle: Text(getList['data']['city']),
-                      ),
-                      Divider(),
-                      ListTile(
-                        leading: Icon(Icons.phone),
-                        title: Text(getList['data']['phone']),
-                      ),
-                    ],
-                  );
-                },
+
+                        Container(
+                          height: MediaQuery.of(context).size.height*.6165,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(15),
+                              topRight: Radius.circular(15)
+                            ),
+
+                    // borderRadius: BorderRadius(
+                    // topLeft: Radius.circular(60),
+                    // topRight: Radius.circular(60)),
+                            color: Colors.white),
+
+
+                          child: Column(
+                            children: [
+                              ListTile(
+                                leading: Icon(Icons.home),
+                                title: Text('Address'),
+                                subtitle: Text(getList['data']['city']),
+                              ),
+                              Divider(),
+                              ListTile(
+                                leading: Icon(Icons.phone),
+                                title: Text(getList['data']['phone']),
+                              ),
+
+                            ],
+                          ),
+                        ),
+
+                      ],
+                    );
+                  },
+                ),
               ),
             )
           : Scaffold(

@@ -41,11 +41,9 @@ dependencies:
 
   provider: ^6.0.5
   sqflite: 2.2.0+2
-  firebase_auth: ^4.2.5
-  firebase_core: ^2.4.1
+
   loading_animation_widget:
 
-  cloud_firestore: ^4.3.1
 
   google_sign_in: ^5.4.4
   google_fonts: ^4.0.1
@@ -55,6 +53,12 @@ dependencies:
 
   image_picker: ^0.8.7
   font_awesome_flutter: ^10.4.0
+  fancy_shimmer_image: ^2.0.2
+  email_validator: ^2.1.17
+  transparent_image: ^2.0.1
+
+  shared_preferences: ^2.0.18
+  carousel_slider: ^4.2.1
 
 dev_dependencies:
   flutter_test:

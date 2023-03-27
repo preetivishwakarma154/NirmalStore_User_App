@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 import 'homepage.dart';
-
 
 class VerifyOTP extends StatefulWidget {
   const VerifyOTP({Key? key, required this.number}) : super(key: key);
@@ -79,6 +78,12 @@ class _VerifyOTPState extends State<VerifyOTP> {
 
   @override
   Widget build(BuildContext context) {
+    void _setKey(String key) async {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', key);
+      print('set key');
+    }
+
     Future<void> VerifyOtp(
       String otp,
       String number,
@@ -91,7 +96,9 @@ class _VerifyOTPState extends State<VerifyOTP> {
         var json = jsonDecode(responce.body);
         // print(responce.statusCode);
         print(json['message']);
+        print(json['data']['token']);
         if (json['status'] == 1) {
+          _setKey(json['data']['token']);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(

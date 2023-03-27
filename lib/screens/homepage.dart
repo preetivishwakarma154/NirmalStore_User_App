@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nirman_store/screens/pcode/MyProfileP.dart';
-import 'package:nirman_store/screens/wishlistP.dart';
 
+import '../../screens/wishlistP.dart';
 import '../model/home.dart';
 import '../model/search.dart';
+import 'MyProfileP.dart';
 import 'cart.dart';
 
 class HomePage extends StatefulWidget {
@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   // }
   static const List<Widget> _pages = <Widget>[
     Home(),
-    Search(),
+    Explore(),
     Cart(),
     WishListP(),
     MyProfileP()
@@ -61,8 +61,8 @@ class _HomePageState extends State<HomePage> {
                 label: ('Home'),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.search, size: 27),
-                label: ('Search'),
+                icon: Icon(Icons.explore_outlined, size: 27),
+                label: ('Explore'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.shopping_cart_outlined, size: 27),

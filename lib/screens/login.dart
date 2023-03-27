@@ -1,12 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import 'homepage.dart';
-
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -21,8 +20,11 @@ class _LoginState extends State<Login> {
   var Email;
   var Password;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
+
+  String? emailerror;
+
+  String? passworderror;
   //Error validation
   bool validator() {
     if (formkey.currentState!.validate()) {
@@ -31,19 +33,19 @@ class _LoginState extends State<Login> {
     return false;
   }
 
+  void _setKey(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', key);
+    print('set key');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(0, 228, 226, 226),
         elevation: 0,
-        leading: IconButton(
-          onPressed: () {},
-          icon: const Icon(
-            Icons.arrow_back_ios_rounded,
-            color: Colors.black,
-          ),
-        ),
+
       ),
       body: Padding(
           padding: const EdgeInsets.all(20),
@@ -81,8 +83,16 @@ class _LoginState extends State<Login> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 30.0),
                                   child: TextFormField(
+                                    validator: (value) {
+                                      if (value == null || value!.isEmpty) {
+                                        setState(() {
+                                          emailerror = "Email can't be empty";
+                                        });
+                                      }
+                                    },
                                     onChanged: (value) {
                                       setState(() {
+                                        emailerror = null;
                                         _error = null;
                                         Email = value;
                                       });
@@ -94,6 +104,34 @@ class _LoginState extends State<Login> {
                                   ),
                                 )),
                             const SizedBox(height: 10),
+                            if (emailerror != null)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 3, bottom: 10.0),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      padding: EdgeInsets.all(0),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width -
+                                                  100,
+                                              child: Text(
+                                                "$emailerror",
+                                                style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontSize: 13),
+                                              )),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
 
                             Container(
                                 decoration: BoxDecoration(
@@ -104,8 +142,17 @@ class _LoginState extends State<Login> {
                                       horizontal: 30.0),
                                   child: TextFormField(
                                     obscureText: true,
+                                    validator: (value) {
+                                      if (value == null || value!.isEmpty) {
+                                        setState(() {
+                                          passworderror =
+                                              "Password can't be empty";
+                                        });
+                                      }
+                                    },
                                     onChanged: (value) {
                                       setState(() {
+                                        passworderror = null;
                                         Password = value;
                                       });
                                     },
@@ -115,6 +162,35 @@ class _LoginState extends State<Login> {
                                     ),
                                   ),
                                 )),
+                            if (passworderror != null)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 3, bottom: 10.0),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      padding: EdgeInsets.all(0),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width -
+                                                  100,
+                                              child: Text(
+                                                "$passworderror",
+                                                style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontSize: 13),
+                                              )),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20.0, vertical: 15),
@@ -135,12 +211,12 @@ class _LoginState extends State<Login> {
                                   borderRadius: BorderRadius.circular(20)),
                               child: TextButton(
                                 onPressed: () async {
+                                  if (formkey.currentState!.validate()) {}
                                   var url = Uri.parse(
                                       'https://thenirmanstore.com/v1/account/login');
                                   // print(_googleSignIn.currentUser?.photoUrl.toString());
                                   var responce = await http.post(url, body: {
                                     'type': '2',
-                                    // 'email': '$Email',
                                     'email': '$Email',
                                     'password': '$Password'
                                   });
@@ -148,6 +224,7 @@ class _LoginState extends State<Login> {
                                   // print(responce.statusCode);
                                   print(json['message']);
                                   if (json['status'] == 1) {
+                                    _setKey(json['data']['token']);
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
@@ -261,7 +338,7 @@ class _LoginState extends State<Login> {
 
   //Error Showing Widget
   Widget showAlert() {
-    if (_error != null) {
+    if (_error != null && emailerror == null && passworderror == null) {
       return Container(
         width: MediaQuery.of(context).size.width,
         padding: EdgeInsets.all(8),

@@ -2,6 +2,10 @@
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
+
+import '../screens/SplashScreen.dart';
+import '../screens/productdetailsP.dart';
 
 class ProductModel extends StatefulWidget {
   final api;
@@ -39,7 +43,7 @@ class _ProductModelState extends State<ProductModel> {
     try {
       var headers = {
         'x-access-token':
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NDIyLCJpYXQiOjE2Nzc5MzMyMzR9.jolwUrSbFTJhhbCXK80I4Qp-OlX47aUHPqkwPj56AoY',
+        '$globalusertoken',
         'Cookie': 'ci_session=e8daebc9c3fe6cc93fdf999ed4c5457e27b5c185'
       };
       var request = http.MultipartRequest(
@@ -67,7 +71,7 @@ class _ProductModelState extends State<ProductModel> {
     try {
       var headers = {
         'x-access-token':
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NDIyLCJpYXQiOjE2Nzc5MzMyMzR9.jolwUrSbFTJhhbCXK80I4Qp-OlX47aUHPqkwPj56AoY',
+        '$globalusertoken',
         'Cookie': 'ci_session=e8daebc9c3fe6cc93fdf999ed4c5457e27b5c185'
       };
       var request = http.MultipartRequest('POST',
@@ -93,58 +97,80 @@ class _ProductModelState extends State<ProductModel> {
   Widget build(BuildContext context) {
     return //Product list -
 
-        Stack(
-      children: [
-        Container(
-          child: InkWell(
-              child: Column(
+        InkWell(
+          onTap: ()
+
+          {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ProductDetailsP(
+                          prodid: widget.id
+                        )));
+          },
+            child: Container(
+              margin: EdgeInsets.only(left: 8,right: 5,top: 5,),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Color.fromARGB(255, 242, 242, 242),
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 150,
+
+            child:FadeInImage.memoryNetwork(fit:BoxFit.cover,placeholder: kTransparentImage, image:widget.image)
+
+          ),
+          Text(
+            '${widget.title}',
+            softWrap: true,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          ),
+
+          Row(
+
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Container(
-                height: 120,
-                width: 120,
-                child: Image(image: NetworkImage('${widget.image}')),
-              ),
-              Text(
-                '${widget.title}',
-                softWrap: true,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-              ),
-              SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.currency_rupee_sharp, size: 15),
+                  Icon(Icons.currency_rupee_sharp, size: 17),
                   Text(
-                    '2000.00',
+                    widget.price,
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.bold,fontSize: 15
                     ),
                   ),
                 ],
+              ),
+              Container(
+                margin: EdgeInsets.all(8),
+                child: CircleAvatar(
+                  
+
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                      color: Colors.blue.shade800,
+                      icon: Icon(
+                        Icons.delete,
+                      ),
+                      onPressed: () {
+                        if (widget.api == 'wishlist') {
+                          deletefromwishlist();
+                        }
+                        if (widget.api == 'cart') {
+                          deletefromcart(widget.cart_item_id, widget.cart_id);
+                        }
+                      },
+                    )),
               )
             ],
-          )),
-        ),
-        Align(
-            alignment: Alignment.bottomRight,
-            child: CircleAvatar(
-                backgroundColor: Colors.red,
-                child: IconButton(
-                  color: Colors.white,
-                  icon: Icon(
-                    Icons.delete,
-                  ),
-                  onPressed: () {
-                    if (widget.api == 'wishlist') {
-                      deletefromwishlist();
-                    }
-                    if (widget.api == 'cart') {
-                      deletefromcart(widget.cart_item_id, widget.cart_id);
-                    }
-                  },
-                )))
-      ],
-    );
+          )
+        ],
+      ),
+    ));
   }
 }
