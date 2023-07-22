@@ -4,19 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
+import '../SplashScreen.dart';
+import 'All_Address.dart';
 
-import 'All_AddressP.dart';
-import 'SplashScreen.dart';
-
-class AddAddressP extends StatefulWidget {
-  AddAddressP({this.isfirstAddress});
+class AddAddress extends StatefulWidget {
+  AddAddress({this.isfirstAddress});
   var isfirstAddress;
 
   @override
-  State<AddAddressP> createState() => _AddAddressPState();
+  State<AddAddress> createState() => _AddAddressState();
 }
 
-class _AddAddressPState extends State<AddAddressP> {
+class _AddAddressState extends State<AddAddress> {
   var valuefirst = false;
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
@@ -37,14 +36,15 @@ class _AddAddressPState extends State<AddAddressP> {
 
   String? stateerror;
 
-  Future<void> AddAddressP(
+  Future<void> AddAddress(
       full_name, address, city, postcode, state, Default) async {
     try {
       var headers = {
         'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=d8a218bacd60260e9622b4e8942267929bab1e32'
       };
-      var request = http.MultipartRequest('POST', Uri.parse('http://thenirmanstore.com/v1/account/add_address'));
+      var request = http.MultipartRequest('POST',
+          Uri.parse('http://thenirmanstore.com/v1/account/add_address'));
       request.fields.addAll({
         'full_name': full_name,
         'address': address,
@@ -57,21 +57,20 @@ class _AddAddressPState extends State<AddAddressP> {
       request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();
-      var data =await response.stream.bytesToString();
+      var data = await response.stream.bytesToString();
 
       if (response.statusCode == 200) {
-        datalsit= jsonDecode(data);
-        if(datalsit['status']==1){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => All_AddressP()));
-        }else{
+        datalsit = jsonDecode(data);
+        if (datalsit['status'] == 1) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => All_Address()));
+        } else {
           CircularProgressIndicator();
         }
         print(datalsit);
-      }
-      else {
+      } else {
         print(response.reasonPhrase);
       }
-
     } catch (e) {
       print(e.toString());
     }
@@ -122,12 +121,11 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 nameerror = "Name can't be empty";
                               });
-                            }else if (value!.length < 3) {
+                            } else if (value!.length < 3) {
                               setState(() {
-                                nameerror= "Too short address";
+                                nameerror = "Too short address";
                               });
                             }
-
                           },
                           onChanged: (value) {
                             setState(() {
@@ -183,11 +181,10 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 addresserror = "Address can't be empty";
                               });
-                            }else if(value!.length<3){
+                            } else if (value!.length < 3) {
                               setState(() {
                                 addresserror = "Too short address ";
                               });
-
                             }
                           },
                           onChanged: (value) {
@@ -207,7 +204,6 @@ class _AddAddressPState extends State<AddAddressP> {
                       child: Column(
                         children: [
                           Container(
-
                             width: MediaQuery.of(context).size.width,
                             padding: EdgeInsets.all(0),
                             child: Row(
@@ -245,7 +241,7 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 cityerror = "City name can't be empty";
                               });
-                            }else if (value!.length < 3) {
+                            } else if (value!.length < 3) {
                               setState(() {
                                 cityerror = "Too short city name";
                               });
@@ -308,7 +304,7 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 ziperror = "Zip code can't be empty";
                               });
-                            }else if (value.length < 6) {
+                            } else if (value.length < 6) {
                               setState(() {
                                 ziperror = "Please enter valid zip code";
                               });
@@ -368,7 +364,7 @@ class _AddAddressPState extends State<AddAddressP> {
                               setState(() {
                                 stateerror = "State name can't be empty";
                               });
-                            }else if(value.length<3){
+                            } else if (value.length < 3) {
                               stateerror = "Too short State name";
                             }
                           },
@@ -449,13 +445,12 @@ class _AddAddressPState extends State<AddAddressP> {
                                 print(zipController.text.toString());
                                 print(stateController.text.toString());
 
-
-                                if(nameerror==null&&
-                                addresserror==null&&
-                                cityerror==null&&
-                                ziperror==null&&
-                                stateerror==null){
-                                  AddAddressP(
+                                if (nameerror == null &&
+                                    addresserror == null &&
+                                    cityerror == null &&
+                                    ziperror == null &&
+                                    stateerror == null) {
+                                  AddAddress(
                                       nameController.text.toString(),
                                       addressController.text.toString(),
                                       cityController.text.toString(),
@@ -463,7 +458,6 @@ class _AddAddressPState extends State<AddAddressP> {
                                       stateController.text.toString(),
                                       checkboxValue.toString());
                                 }
-
 
                                 // Navigator.push(
                                 //     context,

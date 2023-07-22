@@ -3,14 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:nirman_store/screens/AddAddressP.dart';
 
-
-
-import 'All_AddressP.dart';
-import 'SplashScreen.dart';
+import '../Address/AddAddress.dart';
+import '../Address/All_Address.dart';
+import '../SplashScreen.dart';
 import 'cart.dart';
-
 
 class CheckOut extends StatefulWidget {
   var defaultId;
@@ -48,8 +45,7 @@ class _CheckOutState extends State<CheckOut> {
   Future AllAddress() async {
     try {
       var headers = {
-        'x-access-token':
-      '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=bf1a76db3f3961bcb5e2b119abdd1ac1c3ca4825'
       };
       var request = http.MultipartRequest('POST',
@@ -82,8 +78,7 @@ class _CheckOutState extends State<CheckOut> {
         Uri.parse('http://thenirmanstore.com/v1/cart/get_checkout_details');
     // print(_googleSignIn.currentUser?.photoUrl.toString());
     var responce = await http.post(url, body: {}, headers: {
-      'x-access-token':
-      '$globalusertoken',
+      'x-access-token': '$globalusertoken',
     });
 
     if (responce.statusCode == 200) {
@@ -119,15 +114,14 @@ class _CheckOutState extends State<CheckOut> {
       'final_price': '$total_amount',
       'delivery_charges': '$delivery_charge'
     }, headers: {
-      'x-access-token':
-      '$globalusertoken',
+      'x-access-token': '$globalusertoken',
     });
 
     if (responce.statusCode == 200) {
       setState(() {
         apicalled = true;
         orderresponse = jsonDecode(responce.body);
-        print('json msg printed?');
+        print('json msg printed? $orderresponse');
         print('order message - ${orderresponse['message']}');
         print('order id - ${orderresponse['order_id']}');
         print(orderresponse.length);
@@ -146,8 +140,7 @@ class _CheckOutState extends State<CheckOut> {
   Future DefaultAddress() async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=b0efde7e2a0a912df810b01a794ac07ed8633eff'
       };
       var request = http.MultipartRequest(
@@ -245,7 +238,7 @@ class _CheckOutState extends State<CheckOut> {
                                 Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => AddAddressP()));
+                                        builder: (context) => AddAddress()));
                               },
                               child: Padding(
                                 padding: EdgeInsets.all(15),
@@ -353,7 +346,7 @@ class _CheckOutState extends State<CheckOut> {
                                                               MaterialPageRoute(
                                                                   builder:
                                                                       (context) =>
-                                                                          All_AddressP()));
+                                                                          All_Address()));
                                                         },
                                                         child: Text(
                                                           'Change',
@@ -428,7 +421,7 @@ class _CheckOutState extends State<CheckOut> {
                                                               MaterialPageRoute(
                                                                   builder:
                                                                       (context) =>
-                                                                          All_AddressP()));
+                                                                          All_Address()));
                                                         },
                                                         child: Text(
                                                           'Change',

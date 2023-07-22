@@ -1,8 +1,8 @@
 // CART PRODUCT MODEL
-
+import 'package:nirman_store/screens/productdetails.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
-import '../screens/productdetailsP.dart';
+import 'package:nirman_store/screens/productdetails.dart';
 
 
 class CategoryProductsModel extends StatefulWidget {
@@ -26,6 +26,11 @@ class CategoryProductsModel extends StatefulWidget {
 
 class _CategoryProductsModelState extends State<CategoryProductsModel> {
   @override
+  void initState() {
+print("${widget.id},${widget.price},${widget.title},${widget.image}");
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return //Product list -
 
@@ -34,13 +39,12 @@ class _CategoryProductsModelState extends State<CategoryProductsModel> {
       child: Container(
         child: InkWell(
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProductDetailsP(
-                      prodid: widget.id,
-                    ),
-                  ));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetails(prodid: widget.id,),));
+              // Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //       builder: (context) => ProductDetails(widget.id)
+              //     ));
             },
             child: Container(
               decoration: BoxDecoration(

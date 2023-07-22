@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
-import 'All_AddressP.dart';
-import 'SplashScreen.dart';
+import '../SplashScreen.dart';
+import 'All_Address.dart';
 
 class UpdateAddress extends StatefulWidget {
   const UpdateAddress(
@@ -46,8 +46,7 @@ class _UpdateAddressState extends State<UpdateAddress> {
       address_id, full_name, address, city, postcode, state) async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=7d4832524981a8c354021e32be4b985be19526ea'
       };
       var request = http.MultipartRequest('POST',
@@ -72,7 +71,7 @@ class _UpdateAddressState extends State<UpdateAddress> {
         print(updatelist);
         if (updatelist['status'] == 1) {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => All_AddressP()));
+              context, MaterialPageRoute(builder: (context) => All_Address()));
         } else {
           CircularProgressIndicator();
         }
@@ -87,8 +86,7 @@ class _UpdateAddressState extends State<UpdateAddress> {
   Future<void> addAddress(full_name, address, city, postcode, state) async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=fb47b67462ef5857dde5857303c1f52f7749e928'
       };
       var request = http.MultipartRequest('POST',
@@ -485,7 +483,7 @@ class _UpdateAddressState extends State<UpdateAddress> {
                                 // Navigator.push(
                                 //     context,
                                 //     MaterialPageRoute(
-                                //         builder: (context) => All_AddressP()));
+                                //         builder: (context) => All_Address()));
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),

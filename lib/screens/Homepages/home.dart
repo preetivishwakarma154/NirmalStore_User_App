@@ -4,8 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'categorymodel.dart';
-
+import '../../model/categorymodel.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -128,29 +127,32 @@ class _HomeState extends State<Home> {
       );
   Future<bool> _onWillPop() async {
     return (await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: new Text('Are you sure?'),
-        content: new Text('Do you want to Exit'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false), //<-- SEE HERE
-            child: new Text('No'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: new Text('Are you sure?'),
+            content: new Text('Do you want to Exit'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(false), //<-- SEE HERE
+                child: new Text('No'),
+              ),
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(true), // <-- SEE HERE
+                child: new Text('Yes'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true), // <-- SEE HERE
-            child: new Text('Yes'),
-          ),
-        ],
-      ),
-    )) ??
+        )) ??
         false;
   }
+
   @override
   Widget build(BuildContext context) {
     CarouselController carouselController = CarouselController();
     return WillPopScope(
-      onWillPop:_onWillPop ,
+      onWillPop: _onWillPop,
       child: SingleChildScrollView(
           child: Column(
         children: [
@@ -161,14 +163,14 @@ class _HomeState extends State<Home> {
                 alignment: Alignment.bottomRight,
                 child: CarouselSlider.builder(
                   carouselController: carouselController,
-                  itemBuilder: (context, index, realIndex) => imagelist['data'] !=
-                          null
-                      ? Image(
-                          image:
-                              NetworkImage(imagelist['data'][index]['bannerimg']),
-                          fit: BoxFit.cover,
-                        )
-                      : loadingShimmer(),
+                  itemBuilder: (context, index, realIndex) =>
+                      imagelist['data'] != null
+                          ? Image(
+                              image: NetworkImage(
+                                  imagelist['data'][index]['bannerimg']),
+                              fit: BoxFit.cover,
+                            )
+                          : loadingShimmer(),
 
                   // FancyShimmerImage(
                   //     imageUrl: imagelist['data'][index]['bannerimg']),

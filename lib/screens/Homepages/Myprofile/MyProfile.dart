@@ -3,38 +3,41 @@ import 'dart:convert';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:nirman_store/screens/login.dart';
+import 'package:nirman_store/screens/Homepages/Myprofile/about%20us.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'All_AddressP.dart';
-import 'ProfileDetailsP.dart';
-import 'SplashScreen.dart';
+import '../../Address/All_Address.dart';
+import '../../Login/login.dart';
+import '../../SplashScreen.dart';
+import 'ProfileDetails.dart';
 
-class MyProfileP extends StatefulWidget {
-  const MyProfileP({super.key});
+class MyProfile extends StatefulWidget {
+  const MyProfile({super.key});
 
   @override
-  State<MyProfileP> createState() => _MyProfilePState();
+  State<MyProfile> createState() => _MyProfileState();
 }
 
 late String getData;
 Map getList = Map();
 var url = 'https://thenirmanstore.com/';
 
-class _MyProfilePState extends State<MyProfileP> {
+class _MyProfileState extends State<MyProfile> {
   bool apicalled = false;
 
   var addressLength;
+  Map aboutList = Map();
 
   var totleAddress;
 
   var _key;
 
+  var profileData;
+
   Future<void> getProfile() async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=dc51f8d959bc6201cd8ebc94d6b71a9e04d3cb65'
       };
       var request = http.MultipartRequest('GET',
@@ -48,10 +51,13 @@ class _MyProfilePState extends State<MyProfileP> {
       if (response.statusCode == 200) {
         setState(() {
           getList = jsonDecode(getData);
+          print("get lsit\\\ $getList");
+          profileData = getList['data'];
         });
         apicalled = true;
-        print(getList);
-        print(url + getList['data']['profile_picture']);
+        print(getList['data']['phone']);
+
+        print(getList['data']);
       } else {
         print(response.reasonPhrase);
       }
@@ -74,8 +80,7 @@ class _MyProfilePState extends State<MyProfileP> {
   Future<void> showAllAddress() async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=fb47b67462ef5857dde5857303c1f52f7749e928'
       };
       var request = http.MultipartRequest('POST',
@@ -90,20 +95,47 @@ class _MyProfilePState extends State<MyProfileP> {
           addressList = jsonDecode(addressData);
         });
 
-        addressLength = (addressList['data'].length);
-        if (addressLength == null) {
-          totleAddress = "Please add an addresss";
+        if (addressList['status'] == 1) {
+          addressLength = (addressList['data'].length);
+          if (addressLength == null) {
+            totleAddress = "Please add an addresss";
+            print(totleAddress);
+          } else if (addressLength == 1) {
+            totleAddress = "$addressLength address";
+          } else {
+            totleAddress = "$addressLength addresses";
+          }
           print(totleAddress);
-        } else if (addressLength == 1) {
-          totleAddress = "$addressLength address";
-        } else {
-          totleAddress = "$addressLength addresses";
-        }
-        print(totleAddress);
 
-        addressLength = addressList['data'].length;
+          addressLength = addressList['data'].length;
+        }
         //print(addressList['data']);
         //print(addressList.length);
+      } else {
+        print(response.reasonPhrase);
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> aboutUs() async {
+    try {
+      var headers = {
+        'Cookie': 'ci_session=e4475b51f9842efea81cb29a007b5b2ea64f2de5'
+      };
+      var request = http.MultipartRequest(
+          'GET',
+          Uri.parse(
+              'http://thenirmanstore.com/v1/comman/app_version?os_type=android'));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+      var data = await response.stream.bytesToString();
+      if (response.statusCode == 200) {
+        aboutList = jsonDecode(data);
+        print(aboutList);
       } else {
         print(response.reasonPhrase);
       }
@@ -116,6 +148,7 @@ class _MyProfilePState extends State<MyProfileP> {
   void initState() {
     getProfile();
     showAllAddress();
+    aboutUs();
     super.initState();
   }
 
@@ -144,7 +177,6 @@ class _MyProfilePState extends State<MyProfileP> {
 
   @override
   Widget build(BuildContext context) {
-
     return WillPopScope(
       onWillPop: _onWillPop,
       child: SafeArea(
@@ -153,7 +185,9 @@ class _MyProfilePState extends State<MyProfileP> {
             title: Text(
               'MY PROFILE',
               style: TextStyle(
-                  color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
             ),
             centerTitle: true,
             leading: SizedBox(),
@@ -181,14 +215,16 @@ class _MyProfilePState extends State<MyProfileP> {
                                 MaterialPageRoute(
                                     builder: (context) => ProfileScreenP()));
                           },
-                          child: getList.isEmpty
-                              ? Center(child: Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: CircularProgressIndicator(),
-                              ))
-                              : Container(
-                                  margin: EdgeInsets.all(10
+                          child: profileData==null
+                              ? Center(
+                                  child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Center(
+                                    child: Text("Create your profile",style: TextStyle(color:Colors.blue),),
                                   ),
+                                ))
+                              : Container(
+                                  margin: EdgeInsets.all(10),
                                   padding: EdgeInsets.all(15),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
@@ -201,8 +237,8 @@ class _MyProfilePState extends State<MyProfileP> {
                                       CircleAvatar(
                                         radius: 38,
                                         backgroundColor: Colors.white,
-                                        foregroundImage: NetworkImage(
-                                            getList['data']['profile_picture']),
+                                        foregroundImage: getList['data']['profile_picture'].isEmpty?AssetImage(
+                                            'assets/images/user.png'):NetworkImage(getList['data']['profile_picture']) as ImageProvider,
                                       ),
                                       SizedBox(width: 10),
                                       Padding(
@@ -222,7 +258,7 @@ class _MyProfilePState extends State<MyProfileP> {
                                               getList['data']['username'],
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold,
-                                              fontSize: 17),
+                                                  fontSize: 17),
                                             ),
                                             SizedBox(height: 5),
                                             Text(
@@ -241,7 +277,8 @@ class _MyProfilePState extends State<MyProfileP> {
                     ),
                     SizedBox(height: 20),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 8),
                       child: InkWell(
                         onTap: () {
                           Navigator.pushNamed(context, 'MyOrder');
@@ -255,7 +292,8 @@ class _MyProfilePState extends State<MyProfileP> {
                                 Text(
                                   'My orders',
                                   style: TextStyle(
-                                      fontWeight: FontWeight.bold, fontSize: 17),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17),
                                 ),
                                 SizedBox(height: 5),
                                 Text(
@@ -273,7 +311,8 @@ class _MyProfilePState extends State<MyProfileP> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 20),
                       child: InkWell(
                         onTap: () {
                           Navigator.pushNamed(context, 'All_Address');
@@ -312,7 +351,8 @@ class _MyProfilePState extends State<MyProfileP> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 20),
                       child: InkWell(
                         onTap: () {
                           Navigator.pushNamed(context, 'Payment');
@@ -409,19 +449,26 @@ class _MyProfilePState extends State<MyProfileP> {
                     //   ),
                     // ),
                     Divider(),
-                    SizedBox(height: 15,),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Container(
                       padding: EdgeInsets.all(15),
                       margin: EdgeInsets.symmetric(horizontal: 5),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         color: Colors.white,
-
-
                       ),
-
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AboutUs(
+                                    title: "About Us",
+                                    Content: aboutList['data']['about_us']),
+                              ));
+                        },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -429,7 +476,7 @@ class _MyProfilePState extends State<MyProfileP> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(
-                                  Icons.privacy_tip_outlined,
+                                  Icons.people_alt_outlined,
                                   color: Colors.blue.shade800,
                                 ),
                                 SizedBox(
@@ -454,15 +501,67 @@ class _MyProfilePState extends State<MyProfileP> {
                     Container(
                       padding: EdgeInsets.all(15),
                       margin: EdgeInsets.symmetric(horizontal: 5),
-
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         color: Colors.white,
-
-
                       ),
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AboutUs(
+                                    title: "Privacy Policy",
+                                    Content: aboutList['data']['privacy_policy']),
+                              ));
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.privacy_tip_outlined,
+                                  color: Colors.blue.shade800,
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                Text(
+                                  'Privacy Policy',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                      color: Colors.blue.shade800),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+
+                    Container(
+                      padding: EdgeInsets.all(15),
+                      margin: EdgeInsets.symmetric(horizontal: 5),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.white,
+                      ),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AboutUs(
+                                    title: "Contact Us",
+                                    Content: aboutList['data']['contact_us']),
+                              ));
+                        },
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -485,7 +584,6 @@ class _MyProfilePState extends State<MyProfileP> {
                         ),
                       ),
                     ),
-
                     SizedBox(
                       height: 10,
                     ),
@@ -496,8 +594,6 @@ class _MyProfilePState extends State<MyProfileP> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         color: Colors.white,
-
-
                       ),
                       child: InkWell(
                         onTap: () {

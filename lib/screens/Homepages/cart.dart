@@ -3,9 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../model/cartproductmodel.dart';
-import '../model/home.dart';
-import 'SplashScreen.dart';
+import '../../model/cartproductmodel.dart';
+import '../SplashScreen.dart';
 import 'checkout.dart';
 
 class Cart extends StatefulWidget {
@@ -36,6 +35,8 @@ class _CartState extends State<Cart> {
 
   bool checkoutable = false;
 
+  var cartdata;
+
   Future<List> callapi() async {
     //print('apicalled');
     var url = Uri.parse('http://thenirmanstore.com/v1/cart/cart_in_item');
@@ -49,6 +50,8 @@ class _CartState extends State<Cart> {
       setState(() {
         apicalled = true;
         cartlist = jsonDecode(responce.body);
+        cartdata = cartlist['data'];
+        print(cartdata);
       });
     }
 
@@ -134,7 +137,7 @@ class _CartState extends State<Cart> {
                                 future: callapi(),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
-                                    return Column(
+                                    return cartdata!=null?Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -145,7 +148,7 @@ class _CartState extends State<Cart> {
                                                     .height *
                                                 0.62,
                                             child: ListView.builder(
-                                              itemCount: cartlist['data'].length,
+                                              itemCount: cartdata.length,
                                               itemBuilder: (BuildContext context,
                                                   int index) {
                                                 return Column(
@@ -225,6 +228,11 @@ class _CartState extends State<Cart> {
                                           ),
                                         )
                                       ],
+                                    ): Container(
+                                      height: MediaQuery.of(context).size.height/2,
+                                      width: MediaQuery.of(context).size.width,
+                                      child: Center(
+                                          child: Text("Data Not Found")),
                                     );
                                   }
                                   if (snapshot.hasError)

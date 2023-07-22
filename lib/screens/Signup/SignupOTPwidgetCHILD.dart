@@ -7,7 +7,8 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../screens/homepage.dart';
+
+import '../homepage.dart';
 
 class SignupOTPwidgetCHILD extends StatefulWidget {
   var phoneNumber;
@@ -41,8 +42,6 @@ class _SignupOTPwidgetCHILDState extends State<SignupOTPwidgetCHILD> {
   FocusNode otp5FocusNode = FocusNode();
   FocusNode otp6FocusNode = FocusNode();
 
-
-
   bool otpfieldempty = false;
 
   var otperror;
@@ -65,13 +64,11 @@ class _SignupOTPwidgetCHILDState extends State<SignupOTPwidgetCHILD> {
         });
       } else {
         // setState(() {
-          maxseconds--;
+        maxseconds--;
         // });
       }
     });
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   String formatDuration(Duration duration) {

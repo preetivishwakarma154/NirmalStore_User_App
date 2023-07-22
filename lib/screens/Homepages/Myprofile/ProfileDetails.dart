@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-import 'SplashScreen.dart';
-import 'editprofileP.dart';
+import '../../SplashScreen.dart';
+import 'editprofile.dart';
 
 class ProfileScreenP extends StatefulWidget {
   const ProfileScreenP({
@@ -26,8 +26,7 @@ class _ProfileScreenPState extends State<ProfileScreenP> {
   Future<void> getProfile() async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=dc51f8d959bc6201cd8ebc94d6b71a9e04d3cb65'
       };
       var request = http.MultipartRequest('GET',
@@ -90,9 +89,7 @@ class _ProfileScreenPState extends State<ProfileScreenP> {
     return SafeArea(
       child: getList['status'] == 1
           ? Scaffold(
-
               appBar: AppBar(
-
                   title: Text(
                     'PROFILE',
                     style: TextStyle(
@@ -115,7 +112,7 @@ class _ProfileScreenPState extends State<ProfileScreenP> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => EditProfileP(
+                                  builder: (context) => MyProfileEditProfile(
                                         defaultimage: getList['data']
                                             ['profile_picture'],
                                         name: getList['data']['username'],
@@ -132,71 +129,66 @@ class _ProfileScreenPState extends State<ProfileScreenP> {
                     )
                   ]),
               body: Container(
-
-
                 child: FutureBuilder(
                   builder: (context, snapshot) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
-
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 60,
-                                backgroundColor: Colors.white,
-                                child: Text(''),
-                                foregroundImage: NetworkImage(
-                                    getList['data']['profile_picture']),
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                getList['data']['username'],
-                                style: TextStyle(fontSize: 24),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                getList['data']['email'],
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Container(
-                          height: MediaQuery.of(context).size.height*.6165,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              topRight: Radius.circular(15)
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 10,),
+                                CircleAvatar(
+                                  radius: 60,
+                                  backgroundColor: Colors.white,
+                                  child: Text(''),
+                                  foregroundImage: getList['data']['profile_picture'].isEmpty?AssetImage(
+                      'assets/images/user.png'):NetworkImage(getList['data']['profile_picture']) as ImageProvider,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  getList['data']['username'],
+                                  style: TextStyle(fontSize: 24),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  getList['data']['email'],
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
                             ),
-
-                    // borderRadius: BorderRadius(
-                    // topLeft: Radius.circular(60),
-                    // topRight: Radius.circular(60)),
-                            color: Colors.white),
-
-
-                          child: Column(
-                            children: [
-                              ListTile(
-                                leading: Icon(Icons.home),
-                                title: Text('Address'),
-                                subtitle: Text(getList['data']['city']),
-                              ),
-                              Divider(),
-                              ListTile(
-                                leading: Icon(Icons.phone),
-                                title: Text(getList['data']['phone']),
-                              ),
-
-                            ],
                           ),
-                        ),
+                          Container(
+                            height: MediaQuery.of(context).size.height * .6165,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    topRight: Radius.circular(15)),
 
-                      ],
+                                // borderRadius: BorderRadius(
+                                // topLeft: Radius.circular(60),
+                                // topRight: Radius.circular(60)),
+                                color: Colors.white),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 10,),
+                                ListTile(
+                                  leading: Icon(Icons.home),
+                                  title: Text('Address'),
+                                  subtitle: Text(getList['data']['city']),
+                                ),
+                                Divider(),
+                                ListTile(
+                                  leading: Icon(Icons.phone),
+                                  title: Text(getList['data']['phone']),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),

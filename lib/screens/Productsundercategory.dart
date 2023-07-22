@@ -21,73 +21,145 @@ class _ProductsUnderCategoryState extends State<ProductsUnderCategory> {
   List prodRatings = [];
 
   List productmodelist = [];
+  Map SubCategoryList = Map();
 
   bool apicalled = false;
 
   // _ProductModelState(image, title, ratings, ratedby, price);
+  Future SubCategory(category_id) async {
+    try {
+      var headers = {
+        'Cookie': 'ci_session=a29f36af6ac0c16adab409bb33b3bbd171d9bbf3'
+      };
+      var request = http.MultipartRequest(
+          'POST', Uri.parse('http://thenirmanstore.com/v1/product/products'));
+      request.fields.addAll({
+        'category_id': category_id
+      });
 
-  Future<List> callapi() async {
-    print('apicalled');
-    var url = Uri.parse('http://thenirmanstore.com/v1/product/products');
-    // print(_googleSignIn.currentUser?.photoUrl.toString());
-    print('Category Id - ${widget.category_id}');
-    var responce = await http.post(url, body: {
-      'category_id': widget.category_id.toString(),
-    });
-    var json = jsonDecode(responce.body);
-    setState(() {
-      apicalled = true;
-    });
-    print(apicalled);
-    print('json msg printed?');
-    print(json['data']);
-    var data = await json['data'];
-    var datalength = json['data'].length;
-    print('Datalength $datalength');
+      request.headers.addAll(headers);
 
-    for (int i = 0; i < datalength; i++) {
-      prodId.add(data[i]['id']);
-      prodName.add(data[i]['product_name']);
-      prodImage.add(data[i]['product_image'][0]['search_image']);
-      prodPrice.add(data[i]['price']);
-      prodRatings.add(data[i]['product_ratings']);
 
-      // print('x');
+      http.StreamedResponse response = await request.send();
+      var Data =await response.stream.bytesToString();
+      setState(() {
+         apicalled=true;
+      });
+       
+      if (response.statusCode == 200) {
+        SubCategoryList = jsonDecode(Data);
+        print("product list$productmodelist");
+              print("SUBproduct list$SubCategoryList");
+            
+
+        if(SubCategoryList['status']==1){
+
+
+          var data = await SubCategoryList['data'];
+
+          var datalength = SubCategoryList['data'].length;
+          print('Datalength $datalength');
+          //
+          // for (int i = 0; i < datalength; i++) {
+          //   prodId.add(data[i]['id']);
+          //   prodName.add(data[i]['product_name']);
+          //   prodImage.add(data[i]['product_image'][0]['search_image']);
+          //   prodPrice.add(data[i]['price']);
+          //   prodRatings.add(data[i]['product_ratings']);
+          //
+          //   // print('x');
+          // }
+
+          for (int i = 0; i < datalength; i++) {
+            productmodelist.add(CategoryProductsModel(
+              id: SubCategoryList['data'][i]['id'],
+              price: SubCategoryList['data'][i]['price'],
+              image: SubCategoryList['data'][i]['product_image'][0]['catalog_image'],
+              title: SubCategoryList['data'][i]['product_name'],
+              ratings: 5,
+              ratedby: 7,
+            ));
+          }
+          // name = data[0]['name'];
+          print(productmodelist);
+          setState(() {});
+          print(prodName);
+        }
+      }
+      else {
+        print(response.reasonPhrase);
+      }
+    } catch (e) {
+      print(e);
     }
-
-    for (int i = 0; i < prodName.length; i++) {
-      productmodelist.add(CategoryProductsModel(
-        id: prodId[i],
-        price: prodPrice[i],
-        image: prodImage[i],
-        title: prodName[i],
-        ratings: 5,
-        ratedby: 7,
-      ));
-    }
-    // name = data[0]['name'];
-    setState(() {});
-    print(prodName);
-    // if (json['status'] == 1) {
-    //   Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(
-    //         builder: (context) => HomePage(),
-    //       ));
-    // } else {
-    //   setState(() {
-    //     _error = json['message'];
-    //   });
-    // }
-    return prodName;
   }
+  // Future<List> callapi() async {
+  //   print('apicalled');
+  //   var url = Uri.parse('http://thenirmanstore.com/v1/product/products');
+  //   // print(_googleSignIn.currentUser?.photoUrl.toString());
+  //   print('Category Id - ${widget.category_id}');
+  //   var responce = await http.post(url, body: {
+  //     'category_id': widget.category_id,
+  //   });
+  //   var json = jsonDecode(responce.body);
+  //   setState(() {
+  //     apicalled = true;
+  //   });
+  //   print(apicalled);
+  //
+  //   if(json['statue']==1){
+  //
+  //
+  //      var data = await json['data'];
+  //
+  //   var datalength = json['data'].length;
+  //  print('Datalength $datalength');
+  //
+  //   for (int i = 0; i < datalength; i++) {
+  //     prodId.add(data[i]['id']);
+  //     prodName.add(data[i]['product_name']);
+  //     prodImage.add(data[i]['product_image'][0]['search_image']);
+  //     prodPrice.add(data[i]['price']);
+  //     prodRatings.add(data[i]['product_ratings']);
+  //
+  //     // print('x');
+  //   }
+  //
+  //   for (int i = 0; i < prodName.length; i++) {
+  //     productmodelist.add(CategoryProductsModel(
+  //       id: prodId[i],
+  //       price: prodPrice[i],
+  //       image: prodImage[i],
+  //       title: prodName[i],
+  //       ratings: 5,
+  //       ratedby: 7,
+  //     ));
+  //   }
+  //   // name = data[0]['name'];
+  //   setState(() {});
+  //   print(prodName);
+  //   }
+  //   // if (json['status'] == 1) {
+  //   //   Navigator.pushReplacement(
+  //   //       context,
+  //   //       MaterialPageRoute(
+  //   //         builder: (context) => HomePage(),
+  //   //       ));
+  //   // } else {
+  //   //   setState(() {
+  //   //     _error = json['message'];
+  //   //   });
+  //   // }
+  //   return prodName;
+  // }
 
   @override
   void initState() {
+    SubCategory(widget.category_id);
     setState(() {
       apicalled = false;
     });
-    callapi();
+
     super.initState();
   }
 
@@ -107,7 +179,30 @@ class _ProductsUnderCategoryState extends State<ProductsUnderCategory> {
             elevation: 0),
         body: Column(
           children: [
-            if (productmodelist.isNotEmpty)
+         
+            if (SubCategoryList.isEmpty && apicalled == false)...[
+              Expanded(
+                child: Container(
+                    height: MediaQuery.of(context).size.height,
+                    child: Center(child: CircularProgressIndicator.adaptive())),
+              ),
+            ]else
+            if (SubCategoryList['status']==0 && apicalled == true)...[
+              Expanded(
+                  child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.cancel_outlined),
+                    SizedBox(width: 8),
+                    Text(
+                      'No Products Found',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ))]else...[
+                   if (productmodelist.isNotEmpty)
               Column(children: [
                 Container(
                   color: Colors.white,
@@ -155,27 +250,9 @@ class _ProductsUnderCategoryState extends State<ProductsUnderCategory> {
                   ),
                 )
               ]),
-            if (productmodelist.isEmpty && apicalled == false)
-              Expanded(
-                child: Container(
-                    height: MediaQuery.of(context).size.height,
-                    child: Center(child: CircularProgressIndicator.adaptive())),
-              ),
-            if (productmodelist.isEmpty && apicalled == true)
-              Expanded(
-                  child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.cancel_outlined),
-                    SizedBox(width: 8),
-                    Text(
-                      'No Products Found',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ))
+           
+           
+              ]
           ],
         ));
   }

@@ -6,11 +6,11 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-import 'ProfileDetailsP.dart';
-import 'SplashScreen.dart';
+import '../../SplashScreen.dart';
+import 'ProfileDetails.dart';
 
-class EditProfileP extends StatefulWidget {
-  EditProfileP(
+class MyProfileEditProfile extends StatefulWidget {
+  MyProfileEditProfile(
       {Key? key,
       required this.defaultimage,
       required this.name,
@@ -20,15 +20,15 @@ class EditProfileP extends StatefulWidget {
   var defaultimage;
 
   @override
-  State<EditProfileP> createState() => _EditProfilePState();
+  State<MyProfileEditProfile> createState() => _MyProfileEditProfileState();
 }
 
-class _EditProfilePState extends State<EditProfileP> {
-  var _image;
+class _MyProfileEditProfileState extends State<MyProfileEditProfile> {
+
   Map datalist = Map();
   String? newuserEmail;
   String? emailerror;
-
+  var _image;
   final picker = ImagePicker();
   bool numberverified = false;
 
@@ -170,8 +170,8 @@ class _EditProfilePState extends State<EditProfileP> {
                       radius: 50,
                       backgroundColor: Colors.white,
                       foregroundImage: _image == null
-                          ? NetworkImage(widget.defaultimage)
-                          : FileImage(_image) as ImageProvider
+                          ? widget.defaultimage.isEmpty?AssetImage('assets/images/user.png'):NetworkImage(widget.defaultimage)as ImageProvider
+                          : FileImage(_image)
 
                       //_image==null? FileImage(_image!):AssetImage('assets/images/fb.png')as ImageProvider
                       ,

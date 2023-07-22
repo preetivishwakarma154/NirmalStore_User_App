@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import '../screens/SplashScreen.dart';
-import '../screens/productdetailsP.dart';
+import '../screens/productdetails.dart';
 
 class ProductModel extends StatefulWidget {
   final api;
@@ -42,8 +42,7 @@ class _ProductModelState extends State<ProductModel> {
   void deletefromwishlist() async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=e8daebc9c3fe6cc93fdf999ed4c5457e27b5c185'
       };
       var request = http.MultipartRequest(
@@ -70,8 +69,7 @@ class _ProductModelState extends State<ProductModel> {
   void deletefromcart(cart_item_id, cart_id) async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=e8daebc9c3fe6cc93fdf999ed4c5457e27b5c185'
       };
       var request = http.MultipartRequest('POST',
@@ -98,79 +96,74 @@ class _ProductModelState extends State<ProductModel> {
     return //Product list -
 
         InkWell(
-          onTap: ()
-
-          {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        ProductDetailsP(
-                          prodid: widget.id
-                        )));
-          },
+            onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ProductDetails(prodid: widget.id)));
+            },
             child: Container(
-              margin: EdgeInsets.only(left: 8,right: 5,top: 5,),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Color.fromARGB(255, 242, 242, 242),
-      ),
-      child: Column(
-        children: [
-          Container(
-            height: 150,
-
-            child:FadeInImage.memoryNetwork(fit:BoxFit.cover,placeholder: kTransparentImage, image:widget.image)
-
-          ),
-          Text(
-            '${widget.title}',
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-          ),
-
-          Row(
-
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              margin: EdgeInsets.only(
+                left: 8,
+                right: 5,
+                top: 5,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Color.fromARGB(255, 242, 242, 242),
+              ),
+              child: Column(
                 children: [
-                  Icon(Icons.currency_rupee_sharp, size: 17),
+                  Container(
+                      height: 150,
+                      child: FadeInImage.memoryNetwork(
+                          fit: BoxFit.cover,
+                          placeholder: kTransparentImage,
+                          image: widget.image)),
                   Text(
-                    widget.price,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,fontSize: 15
-                    ),
+                    '${widget.title}',
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.currency_rupee_sharp, size: 17),
+                          Text(
+                            widget.price,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 15),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        margin: EdgeInsets.all(8),
+                        child: CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: IconButton(
+                              color: Colors.blue.shade800,
+                              icon: Icon(
+                                Icons.delete,
+                              ),
+                              onPressed: () {
+                                if (widget.api == 'wishlist') {
+                                  deletefromwishlist();
+                                }
+                                if (widget.api == 'cart') {
+                                  deletefromcart(
+                                      widget.cart_item_id, widget.cart_id);
+                                }
+                              },
+                            )),
+                      )
+                    ],
+                  )
                 ],
               ),
-              Container(
-                margin: EdgeInsets.all(8),
-                child: CircleAvatar(
-                  
-
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                      color: Colors.blue.shade800,
-                      icon: Icon(
-                        Icons.delete,
-                      ),
-                      onPressed: () {
-                        if (widget.api == 'wishlist') {
-                          deletefromwishlist();
-                        }
-                        if (widget.api == 'cart') {
-                          deletefromcart(widget.cart_item_id, widget.cart_id);
-                        }
-                      },
-                    )),
-              )
-            ],
-          )
-        ],
-      ),
-    ));
+            ));
   }
 }

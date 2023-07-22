@@ -8,7 +8,6 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'VerifiyOTP.dart';
 import 'mobilesignupotp.dart';
 
 class SignUp extends StatefulWidget {
@@ -17,13 +16,13 @@ class SignUp extends StatefulWidget {
   @override
   State<SignUp> createState() => _SignUpState();
 }
+
 String? onlynumber;
 String? newusername;
 String newuserPassword = '';
 String? newuserEmail;
 
 class _SignUpState extends State<SignUp> {
-
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
 
   String? phoneNumber;
@@ -35,8 +34,6 @@ class _SignUpState extends State<SignUp> {
 
   bool fielderror = false;
 
-
-
   bool validator() {
     if (formkey.currentState!.validate()) {
       return true;
@@ -46,7 +43,6 @@ class _SignUpState extends State<SignUp> {
 
   var loginpressed;
   var _error;
-
 
   var countryselected = '91';
 
@@ -139,8 +135,6 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
-
-
 // MOBILE NUMBER VERIFY LOGICS
 
   @override
@@ -177,14 +171,13 @@ class _SignUpState extends State<SignUp> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Form(
-
                     key: formkey,
-
-
                     child: Column(
                       children: [
                         showAlert(),
-                        SizedBox(height: 5,),
+                        SizedBox(
+                          height: 5,
+                        ),
                         Container(
                             decoration: BoxDecoration(
                                 color: Colors.white,
@@ -259,12 +252,12 @@ class _SignUpState extends State<SignUp> {
                                 keyboardType: TextInputType.emailAddress,
                                 validator: (value) {
                                   var emailValidator =
-                                  EmailValidator.validate(value!);
+                                      EmailValidator.validate(value!);
                                   if (value == null || value!.isEmpty) {
                                     setState(() {
                                       emailerror = "Email can't be empty";
                                     });
-                                  }else if (emailValidator != true) {
+                                  } else if (emailValidator != true) {
                                     print(EmailValidator.validate(value!));
                                     setState(() {
                                       emailerror = "Invalid email address";
@@ -388,7 +381,7 @@ class _SignUpState extends State<SignUp> {
                                       child: TextFormField(
                                         initialValue: newuserconfirmPassword,
                                         validator: (value) {
-                                          if (value ==null||value!.isEmpty) {
+                                          if (value == null || value!.isEmpty) {
                                             setState(() {
                                               confirmpassworderror =
                                                   "Enter a valid password";
@@ -459,7 +452,7 @@ class _SignUpState extends State<SignUp> {
                                 LengthLimitingTextInputFormatter(10),
                               ],
                               validator: (value) {
-                                if (value==null||value.isEmpty) {
+                                if (value == null || value.isEmpty) {
                                   numbererror = "Field can't be empty";
                                 }
                                 if (value!.contains(',')) {
@@ -544,16 +537,16 @@ class _SignUpState extends State<SignUp> {
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(10)))),
                             onPressed: () {
-                              if (formkey.currentState!.validate()) {
-
-                              }
-                              if(nameerror==null&& emailerror==null&&passworderror==null&&nameerror==null){
+                              if (formkey.currentState!.validate()) {}
+                              if (nameerror == null &&
+                                  emailerror == null &&
+                                  passworderror == null &&
+                                  nameerror == null) {
                                 SendOtp(
                                     number: onlynumber,
                                     email: newuserEmail,
                                     password: newuserPassword,
                                     username: newusername);
-
                               }
 
                               // SendOtp(
@@ -562,7 +555,6 @@ class _SignUpState extends State<SignUp> {
                               //      emailController.text.toString(),
                               //      password: passwordController.text.toString(),
                               //      username: nameController.text.toString());
-
                             },
                             child: Text(
                               'SIGN UP',
@@ -594,6 +586,7 @@ class _SignUpState extends State<SignUp> {
           ),
         ));
   }
+
   Widget showAlert() {
     if (_error != null && emailerror == null && passworderror == null) {
       return Container(

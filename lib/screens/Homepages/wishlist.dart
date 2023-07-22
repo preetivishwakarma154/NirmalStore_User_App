@@ -3,27 +3,28 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../model/productmodel.dart';
-import 'SplashScreen.dart';
+import '../../model/productmodel.dart';
+import '../SplashScreen.dart';
 
-class WishListP extends StatefulWidget {
-  const WishListP({super.key});
+class WishList extends StatefulWidget {
+  const WishList({super.key});
 
   @override
-  State<WishListP> createState() => _WishListPState();
+  State<WishList> createState() => _WishListState();
 }
 
-class _WishListPState extends State<WishListP> {
+class _WishListState extends State<WishList> {
   var wish;
   int index = 0;
   Map wishlist = Map();
   bool apicalled = false;
 
+  var wishlistdata;
+
   Future<void> productWishList() async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=993f8ce175c6855b3ce46babd7962928f32a41ed'
       };
       var request = http.MultipartRequest('POST',
@@ -39,6 +40,7 @@ class _WishListPState extends State<WishListP> {
         setState(() {
           wishlist = jsonDecode(wish);
           apicalled = true;
+          wishlistdata = wishlist['data'];
         });
       } else {
         print(response.reasonPhrase);
@@ -62,26 +64,30 @@ class _WishListPState extends State<WishListP> {
     productWishList();
     super.initState();
   }
+
   Future<bool> _onWillPop() async {
     return (await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: new Text('Are you sure?'),
-        content: new Text('Do you want to Exit'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false), //<-- SEE HERE
-            child: new Text('No'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: new Text('Are you sure?'),
+            content: new Text('Do you want to Exit'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(false), //<-- SEE HERE
+                child: new Text('No'),
+              ),
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(true), // <-- SEE HERE
+                child: new Text('Yes'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true), // <-- SEE HERE
-            child: new Text('Yes'),
-          ),
-        ],
-      ),
-    )) ??
+        )) ??
         false;
   }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -91,7 +97,9 @@ class _WishListPState extends State<WishListP> {
           title: Text(
             'WISHLIST',
             style: TextStyle(
-                color: Colors.black, fontSize: 22.5, fontWeight: FontWeight.bold),
+                color: Colors.black,
+                fontSize: 22.5,
+                fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           leading: SizedBox(),
@@ -105,7 +113,7 @@ class _WishListPState extends State<WishListP> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                wishlist['status'] != 0
+                wishlistdata != null
                     ? Expanded(
                         child: FutureBuilder(
                             future: productWishList(),
@@ -114,7 +122,7 @@ class _WishListPState extends State<WishListP> {
                                 return Container(
                                   height: MediaQuery.of(context).size.height,
                                   child: GridView.builder(
-                                    itemCount: wishlist['data'].length,
+                                    itemCount: wishlistdata.length,
                                     gridDelegate:
                                         SliverGridDelegateWithFixedCrossAxisCount(
                                       childAspectRatio: MediaQuery.of(context)
@@ -157,7 +165,8 @@ class _WishListPState extends State<WishListP> {
                                     child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text('Tap the '),
                                         Icon(Icons.favorite_border),
@@ -178,7 +187,8 @@ class _WishListPState extends State<WishListP> {
                             children: [
                               if (apicalled == false)
                                 Center(
-                                    child: CircularProgressIndicator.adaptive()),
+                                    child:
+                                        CircularProgressIndicator.adaptive()),
                               if (apicalled == true)
                                 Container(
                                   height:
@@ -188,7 +198,8 @@ class _WishListPState extends State<WishListP> {
                                     child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text('Tap the '),
                                         Icon(Icons.favorite_border),

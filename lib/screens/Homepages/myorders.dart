@@ -3,9 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../model/myordermodel.dart';
-import 'SplashScreen.dart';
-
+import '../../model/myordermodel.dart';
+import '../SplashScreen.dart';
 
 class MyOrder extends StatefulWidget {
   const MyOrder({Key? key}) : super(key: key);
@@ -37,8 +36,7 @@ class _MyOrderState extends State<MyOrder> {
     var url = Uri.parse('http://thenirmanstore.com/v1/order/my_orders');
     // print(_googleSignIn.currentUser?.photoUrl.toString());
     var responce = await http.post(url, body: {}, headers: {
-      'x-access-token':
-      '$globalusertoken',
+      'x-access-token': '$globalusertoken',
     });
 // order - eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6Mzk3LCJpYXQiOjE2Nzc3NzI4NDB9.MsjQ4H2x6wPyqNEzTMqBP-x4cgwNwt_1E4SZ5ZxIYZE
 // no order - eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NDU5LCJpYXQiOjE2Nzg5NjY1NDl9.bmF5bO4QlBMWkbjJ9Xtb4bTk_TQECCnceMTb_mBU9o8

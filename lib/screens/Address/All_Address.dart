@@ -3,14 +3,14 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'AddAddressP.dart';
-import 'SplashScreen.dart';
-import 'UpdateAddressP.dart';
-import 'checkout.dart';
+import '../Homepages/checkout.dart';
+import '../SplashScreen.dart';
+import 'AddAddress.dart';
+import 'UpdateAddress.dart';
 
-class All_AddressP extends StatefulWidget {
+class All_Address extends StatefulWidget {
   @override
-  State<All_AddressP> createState() => _All_AddressPState();
+  State<All_Address> createState() => _All_AddressState();
 }
 
 var addressData;
@@ -19,14 +19,13 @@ String? selectOption = "0";
 var groupValue;
 Map defaultList = Map();
 
-class _All_AddressPState extends State<All_AddressP> {
+class _All_AddressState extends State<All_Address> {
   var addressLength;
 
   Future<void> showAllAddress() async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=fb47b67462ef5857dde5857303c1f52f7749e928'
       };
       var request = http.MultipartRequest('POST',
@@ -40,7 +39,7 @@ class _All_AddressPState extends State<All_AddressP> {
         setState(() {
           addressList = jsonDecode(addressData);
         });
-        addressLength = addressList['data'].length;
+
         //print(addressList['data']);
         //print(addressList.length);
       } else {
@@ -54,8 +53,7 @@ class _All_AddressPState extends State<All_AddressP> {
   Future DefaultAddress(id) async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=ecc69a7bb1a2faedb50e0f3fe73aeda12d1ae5a7'
       };
       var request = http.MultipartRequest(
@@ -96,8 +94,7 @@ class _All_AddressPState extends State<All_AddressP> {
   Future<void> deleteAddress(address_id) async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=7d4832524981a8c354021e32be4b985be19526ea'
       };
       var request = http.MultipartRequest('POST',
@@ -174,7 +171,7 @@ class _All_AddressPState extends State<All_AddressP> {
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => AddAddressP()));
+                                      builder: (context) => AddAddress()));
                             },
                             child: Container(
                               padding: EdgeInsets.all(15),
@@ -388,10 +385,8 @@ class _All_AddressPState extends State<All_AddressP> {
                                 ),
                               ),
                             )
-                          : Align(
-                              alignment: Alignment.center,
-                              child:
-                                  Center(child: Text("Please Add an Address"))),
+                          : Center(child: Text("Please Add an Address",
+                      textAlign: TextAlign.center,)),
                       SizedBox(
                         height: 70,
                       )
@@ -399,7 +394,7 @@ class _All_AddressPState extends State<All_AddressP> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(25.0),
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: Material(

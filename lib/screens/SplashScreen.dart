@@ -2,10 +2,9 @@
 // display for 2000 milli second while starting the application.
 
 import 'package:flutter/material.dart';
-import 'package:nirman_store/screens/signup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
+import 'Signup/signup.dart';
 import 'homepage.dart';
 
 class SplashScreen extends StatefulWidget {

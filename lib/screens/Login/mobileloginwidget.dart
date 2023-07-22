@@ -7,7 +7,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'homepage.dart';
+import '../homepage.dart';
 import 'mobileauth.dart';
 
 class MobileLoginWidget extends StatefulWidget {
@@ -264,7 +264,12 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
                                   children: [
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MobileLogin(),));
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MobileLogin(),
+                                            ));
                                       },
                                       child: Row(
                                         mainAxisAlignment:
@@ -660,8 +665,9 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
-                                      children: [if(cooldown==true)
-                                        Text(formattedTime),
+                                      children: [
+                                        if (cooldown == true)
+                                          Text(formattedTime),
                                         SizedBox(width: 8),
                                         Row(
                                           mainAxisAlignment:
@@ -881,7 +887,9 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
                               ],
                             ),
                           ),
-                          SizedBox(height: 20,)
+                          SizedBox(
+                            height: 20,
+                          )
                         ])))));
   }
 

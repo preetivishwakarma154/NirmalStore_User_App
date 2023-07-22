@@ -3,24 +3,23 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:http/http.dart' as http;
 
 import 'SplashScreen.dart';
-import 'cart.dart';
 import 'dart:async';
 import 'dart:convert';
 
 import 'homepage.dart';
 
-class ProductDetailsP extends StatefulWidget {
-  ProductDetailsP({
+class ProductDetails extends StatefulWidget {
+  ProductDetails({
     Key? key,
-    this.prodid,
+     required this.prodid,
   }) : super(key: key);
 
   var prodid;
   @override
-  State<ProductDetailsP> createState() => _ProductDetailsPState();
+  State<ProductDetails> createState() => _ProductDetailsState();
 }
 
-class _ProductDetailsPState extends State<ProductDetailsP> {
+class _ProductDetailsState extends State<ProductDetails> {
   bool itemdetailsopen = false;
   bool shippinginfoopen = false;
   bool supportopen = false;
@@ -66,7 +65,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
 
   var wishlistLength;
 
-  Future getProductDetailsP(
+  Future getProductDetails(
     String id,
   ) async {
     print('details apicalled');
@@ -132,8 +131,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
   Future<void> productWishList() async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=993f8ce175c6855b3ce46babd7962928f32a41ed'
       };
       var request = http.MultipartRequest('POST',
@@ -149,20 +147,22 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
         setState(() {
           wishlist = jsonDecode(wish);
 
-          wishlistLength = (wishlist['data'].length);
+
         });
-        if (wishlist['data'].isEmpty) {
+        if(wishlist['status']==0){
+          allreadyInWishList = false;
+        }
+        else if (wishlist['data'].isEmpty) {
           setState(() {
             allreadyInWishList = false;
           });
-
-        } else if(wishlist['status']==1){
+        } else if (wishlist['status'] == 1) {
+          wishlistLength = (wishlist['data'].length);
           for (int i = 0; i < wishlistLength; i++) {
             if (wishlist['data'][i]['id'] == Id) {
               setState(() {
                 allreadyInWishList = true;
               });
-
             }
             // else if(AddWishlist['status']==0){
             //   setState(() {
@@ -176,8 +176,6 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
             //   });
             //
             // }
-
-
           }
         }
         //print(wishlist);
@@ -193,8 +191,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
   void deletefromwishlist(id) async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=e8daebc9c3fe6cc93fdf999ed4c5457e27b5c185'
       };
       var request = http.MultipartRequest(
@@ -228,8 +225,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
   ) async {
     try {
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
         'Cookie': 'ci_session=2d0e68281b0950c4d94564b77b855aab995d6f68'
       };
       var request = http.MultipartRequest(
@@ -265,8 +261,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
     try {
       print('Api called');
       var headers = {
-        'x-access-token':
-        '$globalusertoken',
+        'x-access-token': '$globalusertoken',
       };
       var request = http.MultipartRequest(
           'POST', Uri.parse('http://thenirmanstore.com/v1/cart/add_to_cart'));
@@ -306,7 +301,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
 
   @override
   void initState() {
-    getProductDetailsP(widget.prodid);
+    getProductDetails(widget.prodid);
     productWishList();
 
     super.initState();
@@ -356,19 +351,15 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
                               print(allreadyInWishList);
                               //  print("+++++++++++++++++++"+wishlist['data'][index]['id']);
 
-
                               if (allreadyInWishList == false) {
                                 productAddWishList(Id);
-                                                          }
+                              }
                               // else if (DeleteWishlist['status'] == 1) {
                               //   productAddWishList(Id);
                               // }
                               else {
-
                                 deletefromwishlist(Id);
-
                               }
-
                             },
                             icon: Icon(
                                 (allreadyInWishList == true)
@@ -627,7 +618,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
 //                                           context,
 //                                           MaterialPageRoute(
 //                                             builder: (context) =>
-//                                                 ProductDetailsP(
+//                                                 ProductDetails(
 //                                               title: 'Saw Blade Case',
 //                                               discription:
 //                                                   "These reciprocating saw blades last up to 50% longer* and feature patented tooth forms that deliver fast, smooth cuts in wood and metal-cutting applications. Their Bi-Metal construction is designed to extend blade life and minimizes blade breaks. Each kit contains an assortment of blades for a variety of cutting applications and a collapsible ToughCase® or easy storage. Made in the USA with global materials.",
@@ -734,7 +725,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
 //                                           context,
 //                                           MaterialPageRoute(
 //                                             builder: (context) =>
-//                                                 ProductDetailsP(
+//                                                 ProductDetails(
 //                                               title: 'Circular Saw',
 //                                               discription:
 //                                                   "A circular saw is a tool for cutting many materials such as wood, masonry, plastic, or metal and may be hand-held or mounted to a machine. In woodworking the term 'circular saw' refers specifically to the hand-held type and the table saw and chop saw are other common forms of circular saws.",
@@ -842,7 +833,7 @@ class _ProductDetailsPState extends State<ProductDetailsP> {
 //                                           context,
 //                                           MaterialPageRoute(
 //                                             builder: (context) =>
-//                                                 ProductDetailsP(
+//                                                 ProductDetails(
 //                                               title: 'Demolition Breaker',
 //                                               discription:
 //                                                   "Perfect combination of power, durability and compact design. Material quality is assured to work with long lasting hours with 2 in 1 (drilling and breaking) mechanism and soft rubber grip. The adjustable 360 degree side handle and ergonomic grip handle to give full control.",
